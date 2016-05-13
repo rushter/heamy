@@ -25,7 +25,7 @@ test_requirements = [
 
 setup(
     name='heamy',
-    version='0.0.2',
+    version='0.0.3',
     description="A set of useful tools for competitive data science.",
     long_description=readme,
     author="Artem Golubin",
