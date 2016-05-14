@@ -22,7 +22,7 @@ class Dataset(object):
     y_train : pd.DataFrame, pd.Series or np.ndarray, optional
     X_test : pd.DataFrame or np.ndarray, optional
     y_test : pd.DataFrame, pd.Series or np.ndarray, optional
-    preprocessor: function, optional
+    preprocessor : function, optional
         A callable function that returns preprocessed data.
 
         If `use_cache=True` then preprocessing step will be cached until function code is changed.

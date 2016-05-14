@@ -140,7 +140,7 @@ class ModelsPipeline(object):
         return Dataset(X_train=result_train, y_train=y, X_test=result_test)
 
     def blend(self, proportion=0.2, stratify=False, seed=100, indices=None):
-        """Blend sequence of models.
+        """Blends sequence of models.
 
         Parameters
         ----------
@@ -182,7 +182,7 @@ class ModelsPipeline(object):
         return Dataset(X_train=result_train, y_train=y, X_test=result_test)
 
     def find_weights(self, scorer, test_size=0.2, method='SLSQP'):
-        """Find optimal weights for weighted average of models.
+        """Finds optimal weights for weighted average of models.
 
         Parameters
         ----------
@@ -212,7 +212,7 @@ class ModelsPipeline(object):
         return p.minimize(method)
 
     def weight(self, weights):
-        """Apply weighted mean to models.
+        """Applies weighted mean to models.
 
         Parameters
         ----------
