@@ -1,6 +1,6 @@
-===============================
+=====
 heamy
-===============================
+=====
 
 .. image:: https://img.shields.io/pypi/v/heamy.svg
         :target: https://pypi.python.org/pypi/heamy
@@ -24,8 +24,20 @@ To install Heamy, simply:
     $ pip install -U heamy
 
 
+Features
+--------
+* Automatic caching (data preprocessing, predictions from models)
+* Ensemble learning (stacking, blending, weighted average, etc.).
+
+TODO
+----
+* Feature selection
+* Feature transformations
+* Feature interactions
+
+
 Documentation
-----------------------
+-------------
 
 * Documentation: http://heamy.readthedocs.io/en/latest/        
 * Examples: https://github.com/rushter/heamy/tree/master/examples
