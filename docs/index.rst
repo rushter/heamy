@@ -1,16 +1,17 @@
 Welcome to heamy's documentation!
-======================================
+=================================
 
 Contents:
 
 .. toctree::
    :maxdepth: 2
 
+   usage
    installation
    contributing
 
 API
-==================
+===
 
 .. toctree::
    :maxdepth: 2
