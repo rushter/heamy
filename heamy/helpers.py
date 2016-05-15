@@ -1,5 +1,6 @@
 # coding:utf-8
 from collections import defaultdict
+from itertools import combinations
 
 import numpy as np
 import pandas as pd
@@ -29,12 +30,15 @@ def tsplit(df, shape):
         return df[0:shape], df[shape:]
 
 
-def concat(*args):
+def concat(x, y, axis=0):
     """Concatenate a sequence of pandas or numpy objects into one entity."""
-    if all([isinstance(df, (pd.DataFrame, pd.Series)) for df in args]):
-        return pd.concat(args)
+    if all([isinstance(df, (pd.DataFrame, pd.Series)) for df in [x, y]]):
+        return pd.concat([x, y], axis=axis)
     else:
-        return np.concatenate(args)
+        if axis == 0:
+            return np.concatenate([x, y])
+        else:
+            return np.column_stack([x, y])
 
 
 def reshape_1d(df):
@@ -113,3 +117,11 @@ def flush_cache():
     cache_dir = '.cache/heamy/'
     if os.path.exists(cache_dir):
         shutil.rmtree(cache_dir)
+
+
+def feature_combiner(df):
+    combs = list(combinations(df.columns, 2))
+    for i, j in combs:
+        column_name = '%s-%s' % (i, j)
+        df[column_name] = df[i] - df[j]
+    return df

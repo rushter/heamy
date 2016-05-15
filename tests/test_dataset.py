@@ -80,11 +80,8 @@ def test_properties():
 
     d = Dataset(X_train, y_train)
 
-    with pytest.raises(NameError):
-        d.X_test
-
-    with pytest.raises(NameError):
-        d.y_test
+    assert d.X_test is None
+    assert d.y_test is None
 
 
 def test_hashing():
@@ -130,16 +127,16 @@ def test_preprocessing():
 
 def test_split():
     d = Dataset(X_train, y_train)
-    d.split(save=True)
+    d.split(inplace=True)
     assert d.X_test is not None
     assert d.y_test is not None
 
     d = Dataset(X_train, y_train)
-    data = d.split(save=False)
+    data = d.split(inplace=False)
     assert all(x is not None for x in data)
 
     d = Dataset(X_train, y_train)
-    data = d.split(save=False)
+    data = d.split(inplace=False)
     assert all([x is not None for x in data])
 
     d = Dataset(pd.DataFrame(X_train), pd.DataFrame(y_train))
@@ -195,3 +192,18 @@ def test_slicing():
 
     assert Xtest.shape[0] == 150
     assert Xtest.shape[0] == ytest.shape[0]
+
+
+def test_merge():
+    d1 = Dataset(X_train, y_train, X_test, y_test)
+    d2 = Dataset(X_train, y_train, X_test, y_test)
+    ds = d1.merge(d2)
+    assert ds.X_train.shape[1] == 26
+    assert ds.X_test.shape[1] == 26
+
+    d1 = Dataset(pd.DataFrame(X_train), pd.DataFrame(y_train), pd.DataFrame(X_test), pd.DataFrame(y_test))
+    d2 = Dataset(pd.DataFrame(X_train), pd.DataFrame(y_train), pd.DataFrame(X_test), pd.DataFrame(y_test))
+    d1.merge(d2, inplace=True)
+    assert d1.X_train.shape[1] == 26
+    assert d1.X_test.shape[1] == 26
+

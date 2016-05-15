@@ -8,7 +8,7 @@ import inspect
 from sklearn.cross_validation import train_test_split, StratifiedKFold, KFold
 
 from heamy.cache import Cache, numpy_buffer
-from heamy.helpers import idx
+from heamy.helpers import idx, concat
 
 logger = logging.getLogger('heamy.dataset')
 
@@ -47,6 +47,7 @@ class Dataset(object):
     >>>     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=111)
     >>>     return X_train, y_train, X_test, y_test
     """
+
     def __init__(self, X_train=None, y_train=None, X_test=None, y_test=None, preprocessor=None, use_cache=True):
         self._hash = None
         self.use_cache = use_cache
@@ -141,14 +142,14 @@ class Dataset(object):
         self._X_test = X_test
         self._y_test = y_test
 
-    def split(self, test_size=0.1, stratify=False, save=False, seed=33, indices=None):
+    def split(self, test_size=0.1, stratify=False, inplace=False, seed=33, indices=None):
         """Splits train set into two parts (train/test).
 
         Parameters
         ----------
         test_size : float, default 0.1
         stratify : bool, default False
-        save : bool, default False
+        inplace : bool, default False
             If `True` then dataset's train/test will be replaced with new data.
         seed : int, default 33
         indices : list(np.ndarray,np.ndarray), default None
@@ -184,7 +185,7 @@ class Dataset(object):
             X_train, y_train = idx(self.X_train, indices[0]), self.y_train[indices[0]]
             X_test, y_test = idx(self.X_train, indices[1]), self.y_train[indices[1]]
 
-        if save:
+        if inplace:
             self._X_train, self._X_test, self._y_train, self._y_test = X_train, X_test, y_train, y_test
 
         return X_train, y_train, X_test, y_test
@@ -223,17 +224,11 @@ class Dataset(object):
 
     @property
     def X_test(self):
-        if self._X_test is not None:
-            return self._X_test
-        else:
-            raise NameError('Name X_test is not defined.')
+        return self._X_test
 
     @property
     def y_test(self):
-        if self._y_test is not None:
-            return self._y_test
-        else:
-            raise NameError('Name y_test is not defined.')
+        return self._y_test
 
     @property
     def hash(self):
@@ -252,3 +247,38 @@ class Dataset(object):
             self._hash = m.hexdigest()
 
         return self._hash
+
+    def merge(self, ds, inplace=False, axis=1):
+        """Merge two datasets.
+
+        Parameters
+        ----------
+
+        axis : {0,1}
+        ds : `Dataset`
+        inplace : bool, default False
+
+        Returns
+        -------
+        `Dataset`
+        """
+        if not isinstance(ds, Dataset):
+            raise ValueError('Expected `Dataset`, got %s.' % ds)
+
+        X_train = concat(ds.X_train, self.X_train, axis=axis)
+        y_train = concat(ds.y_train, self.y_train, axis=axis)
+
+        if ds.X_test is not None:
+            X_test = concat(ds.X_test, self.X_test, axis=axis)
+        if ds.y_test is not None:
+            y_test = concat(ds.y_test, self.y_test, axis=axis)
+
+        if inplace:
+            self._X_train = X_train
+            self._y_train = y_train
+            if X_test is not None:
+                self._X_test = X_test
+            if y_test is not None:
+                self._y_test = y_test
+
+        return Dataset(X_train, y_train, X_test, y_test)
