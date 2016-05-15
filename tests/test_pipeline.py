@@ -21,8 +21,8 @@ def boston_dataset():
 
 
 dataset = Dataset(preprocessor=boston_dataset, use_cache=True)
-model = Regressor(dataset=dataset, estimator=LinearRegression, parameters={'normalize': True})
-model_2 = Regressor(dataset=dataset, estimator=RandomForestRegressor, parameters={'n_estimators': 50})
+model = Regressor(dataset=dataset, estimator=LinearRegression, parameters={'normalize': True}, name='lr')
+model_2 = Regressor(dataset=dataset, estimator=RandomForestRegressor, parameters={'n_estimators': 50}, name='rf')
 
 pipeline = ModelsPipeline(model, model_2)
 
@@ -56,3 +56,10 @@ def test_stack_and_blend():
     assert ds.X_train.shape[1] == ds.X_test.shape[1]
     assert ds.X_test.shape[1] == 2
     pipeline.blend()
+
+    ds = pipeline.stack(k=10, add_diff=True)
+    assert ds.X_train.shape[1] == 3
+    assert ds.X_test.shape[1] == 3
+
+    assert 'lr-rf' in ds.X_train.columns
+    assert 'lr-rf' in ds.X_test.columns

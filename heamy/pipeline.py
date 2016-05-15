@@ -6,11 +6,12 @@ from scipy.stats import gmean
 
 from heamy.dataset import Dataset
 from heamy.estimator import Regressor, Classifier
-from heamy.helpers import report_score, generate_columns, Optimizer, group_models
+from heamy.helpers import report_score, generate_columns, Optimizer, group_models, feature_combiner
 
 
 class ModelsPipeline(object):
     """Combines sequence of models."""
+
     def __init__(self, *args):
         self.models = []
 
@@ -99,11 +100,12 @@ class ModelsPipeline(object):
         """
         return self.apply(lambda x: np.min(x, axis=0))
 
-    def stack(self, k=5, stratify=False, shuffle=True, seed=100, full_test=True):
+    def stack(self, k=5, stratify=False, shuffle=True, seed=100, full_test=True, add_diff=False):
         """Stacks sequence of models.
 
         Parameters
         ----------
+
         k : int, default 5
             Number of folds.
         stratify : bool, default False
@@ -111,6 +113,7 @@ class ModelsPipeline(object):
         seed : int, default 100
         full_test : bool, default True
             If True then evaluate test dataset on the full data otherwise take the mean of every fold.
+        add_diff : bool, default False
 
         Returns
         -------
@@ -137,7 +140,13 @@ class ModelsPipeline(object):
         result_train = pd.concat(result_train, axis=1)
         result_test = pd.concat(result_test, axis=1)
 
-        return Dataset(X_train=result_train, y_train=y, X_test=result_test)
+        if add_diff:
+            result_train = feature_combiner(result_train)
+            result_test = feature_combiner(result_test)
+
+        ds = Dataset(X_train=result_train, y_train=y, X_test=result_test)
+
+        return ds
 
     def blend(self, proportion=0.2, stratify=False, seed=100, indices=None):
         """Blends sequence of models.
@@ -179,6 +188,7 @@ class ModelsPipeline(object):
                 y = result.y_train
         result_train = pd.concat(result_train, axis=1)
         result_test = pd.concat(result_test, axis=1)
+
         return Dataset(X_train=result_train, y_train=y, X_test=result_test)
 
     def find_weights(self, scorer, test_size=0.2, method='SLSQP'):
