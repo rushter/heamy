@@ -1,4 +1,4 @@
-heamy.Estimator module
+heamy.estimator module
 ======================================
 
 .. automodule:: heamy.estimator

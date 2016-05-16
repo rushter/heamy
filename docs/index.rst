@@ -19,6 +19,7 @@ API
    dataset
    estimator
    pipeline
+   feature
 
 Indices and tables
 ==================

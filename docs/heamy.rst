@@ -1,6 +1,13 @@
 heamy package
 =============
 
+Subpackages
+-----------
+
+.. toctree::
+
+    heamy.utils
+
 Submodules
 ----------
 
@@ -28,10 +35,10 @@ heamy.estimator module
     :undoc-members:
     :show-inheritance:
 
-heamy.helpers module
+heamy.feature module
 --------------------
 
-.. automodule:: heamy.helpers
+.. automodule:: heamy.feature
     :members:
     :undoc-members:
     :show-inheritance:

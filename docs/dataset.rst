@@ -1,4 +1,4 @@
-heamy.Dataset module
+heamy.dataset module
 ======================================
 
 .. automodule:: heamy.dataset

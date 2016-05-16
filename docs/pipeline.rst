@@ -1,4 +1,4 @@
-heamy.Pipeline module
+heamy.pipeline module
 ======================================
 
 .. automodule:: heamy.pipeline
