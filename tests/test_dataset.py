@@ -8,7 +8,7 @@ import pandas as pd
 import os
 import shutil
 
-from heamy.helpers import flush_cache
+from heamy.utils import flush_cache
 
 np.random.seed(1000)
 

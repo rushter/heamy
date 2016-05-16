@@ -6,7 +6,8 @@ from scipy.stats import gmean
 
 from heamy.dataset import Dataset
 from heamy.estimator import Regressor, Classifier
-from heamy.helpers import report_score, generate_columns, Optimizer, group_models, feature_combiner
+from heamy.utils.main import report_score, generate_columns, group_models, feature_combiner
+from heamy.utils.optimizer import Optimizer
 
 
 class ModelsPipeline(object):

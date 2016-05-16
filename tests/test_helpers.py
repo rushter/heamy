@@ -10,7 +10,8 @@ from sklearn.metrics import mean_absolute_error
 from heamy.cache import np_hash
 from heamy.dataset import Dataset
 from heamy.estimator import Regressor
-from heamy.helpers import generate_columns, Optimizer, group_models, report_score
+from heamy.utils.main import generate_columns, group_models, report_score
+from heamy.utils.optimizer import Optimizer
 
 
 def boston_dataset():

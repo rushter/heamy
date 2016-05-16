@@ -1,15 +1,15 @@
 # coding:utf-8
 import hashlib
+import inspect
 import logging
 from inspect import getargspec
 
 import numpy as np
-import inspect
 
 from heamy.cache import Cache, np_hash
 from heamy.dataset import Dataset
-from heamy.helpers import concat, tsplit, reshape_1d
-from heamy.helpers import report_score
+from heamy.utils.main import concat, tsplit, reshape_1d
+from heamy.utils.main import report_score
 
 REQUIRED_ARGS = set(['X_train', 'y_train', 'X_test', 'y_test'])
 logger = logging.getLogger('heamy.estimator')

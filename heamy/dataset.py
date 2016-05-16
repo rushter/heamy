@@ -1,14 +1,13 @@
 # coding:utf-8
 import hashlib
+import inspect
 import logging
 
 import pandas as pd
-import inspect
-
 from sklearn.cross_validation import train_test_split, StratifiedKFold, KFold
 
 from heamy.cache import Cache, numpy_buffer
-from heamy.helpers import idx, concat
+from heamy.utils.main import idx, concat
 
 logger = logging.getLogger('heamy.dataset')
 
