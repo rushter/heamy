@@ -98,11 +98,14 @@ class BaseEstimator(object):
         if self._is_class:
             estimator = self._estimator(**self.parameters)
             estimator.fit(X_train, y_train)
-            result = estimator.predict(X_test)
+            if self.probability:
+                result = estimator.predict_proba(X_test)
+            else:
+                result = estimator.predict(X_test)
 
-            if self.problem == 'classification':
+            if self.problem == 'classification' and self.probability:
                 # Return second column for binary classification
-                if result.shape[1] == 2:
+                if len(result.shape) == 2 and result.shape[1] == 2:
                     result = result[:, 1]
         else:
             result = self._estimator(X_train=X_train, y_train=y_train,
