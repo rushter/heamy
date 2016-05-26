@@ -6,10 +6,10 @@ from inspect import getargspec
 
 import numpy as np
 
-from heamy.cache import Cache, np_hash
-from heamy.dataset import Dataset
-from heamy.utils.main import concat, tsplit, reshape_1d
-from heamy.utils.main import report_score
+from .cache import Cache, np_hash
+from .dataset import Dataset
+from .utils.main import concat, tsplit, reshape_1d
+from .utils.main import report_score
 
 REQUIRED_ARGS = set(['X_train', 'y_train', 'X_test', 'y_test'])
 logger = logging.getLogger('heamy.estimator')

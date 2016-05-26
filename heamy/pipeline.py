@@ -4,10 +4,10 @@ import numpy as np
 import pandas as pd
 from scipy.stats import gmean
 
-from heamy.dataset import Dataset
-from heamy.estimator import Regressor, Classifier
-from heamy.utils.main import report_score, generate_columns, group_models, feature_combiner
-from heamy.utils.optimizer import Optimizer
+from .dataset import Dataset
+from .estimator import Regressor, Classifier
+from .utils.main import report_score, generate_columns, group_models, feature_combiner
+from .utils.optimizer import Optimizer
 
 
 class ModelsPipeline(object):

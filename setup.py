@@ -3,7 +3,7 @@
 
 
 try:
-    from setuptools import setup
+    from setuptools import setup, find_packages
 except ImportError:
     from distutils.core import setup
 
@@ -32,11 +32,7 @@ setup(
     author="Artem Golubin",
     author_email='me@rushter.com',
     url='https://github.com/rushter/heamy',
-    packages=[
-        'heamy',
-    ],
-    package_dir={'heamy':
-                 'heamy'},
+    packages=find_packages(exclude=['tests', ]),
     include_package_data=True,
     install_requires=requirements,
     license="MIT",

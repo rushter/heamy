@@ -6,8 +6,8 @@ import logging
 import pandas as pd
 from sklearn.cross_validation import train_test_split, StratifiedKFold, KFold
 
-from heamy.cache import Cache, numpy_buffer
-from heamy.utils.main import idx, concat
+from .cache import Cache, numpy_buffer
+from .utils.main import idx, concat
 
 logger = logging.getLogger('heamy.dataset')
 
