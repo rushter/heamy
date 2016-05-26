@@ -105,7 +105,8 @@ class BaseEstimator(object):
                 if result.shape[1] == 2:
                     result = result[:, 1]
         else:
-            result = self._estimator(X_train, y_train, X_test, y_test=None, **self.parameters)
+            result = self._estimator(X_train=X_train, y_train=y_train,
+                                     X_test=X_test, y_test=y_test, **self.parameters)
 
         return result
 
