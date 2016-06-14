@@ -35,7 +35,7 @@ Stacking
     stack_ds = pipeline.stack(k=10,seed=111)
 
     # Train LinearRegression on stacked data (second stage)
-    stacker = Regressor(dataset=dataset, estimator=LinearRegression)
+    stacker = Regressor(dataset=stack_ds, estimator=LinearRegression)
     results = stacker.predict()
     # Validate results using 10 fold cross-validation
     results = stacker.validate(k=10,scorer=mean_absolute_error)
@@ -64,7 +64,7 @@ Blending
     stack_ds = pipeline.blend(proportion=0.2,seed=111)
 
     # Train LinearRegression on stacked data (second stage)
-    stacker = Regressor(dataset=dataset, estimator=LinearRegression)
+    stacker = Regressor(dataset=stack_ds, estimator=LinearRegression)
     results = stacker.predict()
     # Validate results using 10 fold cross-validation
     results = stacker.validate(k=10,scorer=mean_absolute_error)
