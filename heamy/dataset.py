@@ -79,27 +79,29 @@ class Dataset(object):
             self._preprocessor = self.preprocess
 
         if callable(self._preprocessor):
-            if (not self.use_cache) or (self.use_cache and not self._load_cache()):
+            if not self._load_cache():
                 data = self._preprocessor()
                 if isinstance(data, (list, tuple)):
                     self._setup_data(*data)
                 elif isinstance(data, dict):
                     self._setup_data(**data)
-                self._cache()
+
+                if self.use_cache:
+                    self._cache()
 
     def _load_cache(self):
-        cache = Cache(self.hash, prefix='d')
-        if cache.available:
-            logger.info('Loading %s from cache.' % (self.__repr__()))
+        if self.use_cache:
+            cache = Cache(self.hash, prefix='d')
+            if cache.available:
+                logger.info('Loading %s from cache.' % (self.__repr__()))
 
-            self._X_train = cache.retrieve('X_train')
-            self._y_train = cache.retrieve('y_train')
+                self._X_train = cache.retrieve('X_train')
+                self._y_train = cache.retrieve('y_train')
 
-            self._X_test = cache.retrieve('X_test')
-            self._y_test = cache.retrieve('y_test')
-            return True
-        else:
-            return False
+                self._X_test = cache.retrieve('X_test')
+                self._y_test = cache.retrieve('y_test')
+                return True
+        return False
 
     def _cache(self):
         if callable(self._preprocessor):
