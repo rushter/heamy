@@ -54,7 +54,7 @@ class BaseEstimator(object):
             args = set(getargspec(est).args)
             if 'self' in args:
                 args.remove('self')
-            if not REQUIRED_ARGS == args:
+            if not REQUIRED_ARGS.issubset(args):
                 raise ValueError('Missing required arguments. Please specify %s' % ','.join(REQUIRED_ARGS))
 
     @property
