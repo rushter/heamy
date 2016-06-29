@@ -4,6 +4,7 @@ import inspect
 import logging
 
 import pandas as pd
+from scipy.sparse import csr_matrix, csc_matrix
 from sklearn.cross_validation import train_test_split, StratifiedKFold, KFold
 
 from .cache import Cache, numpy_buffer
@@ -57,6 +58,10 @@ class Dataset(object):
             self._process_data()
 
         self._check_input()
+        if isinstance(self._X_train, (pd.Series, pd.DataFrame)):
+            self.columns = self.X_train.columns.tolist()
+        else:
+            self.columns = []
 
     def _check_input(self):
         if (self._X_train is None) or (self._y_train is None):
@@ -283,3 +288,13 @@ class Dataset(object):
                 self._y_test = y_test
 
         return Dataset(X_train, y_train, X_test, y_test)
+
+    def to_csc(self):
+        """Convert Dataset to scipy's Compressed Sparse Column matrix."""
+        self._X_train = csc_matrix(self._X_train)
+        self._X_test = csc_matrix(self._X_test)
+
+    def to_csr(self):
+        """Convert Dataset to scipy's Compressed Sparse Row matrix."""
+        self._X_train = csr_matrix(self._X_train)
+        self._X_test = csr_matrix(self._X_test)
