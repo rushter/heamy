@@ -124,6 +124,7 @@ def test_stacking():
     assert ds.y_train.shape[0] == model.dataset.y_train.shape[0]
 
     model = Regressor(estimator=LinearRegression, parameters={}, dataset=RealDataset)
+    model.dataset.load()
     ds = model.stack(10, full_test=False)
     # Check cache
     assert np.isnan(ds.X_train).sum() == 0

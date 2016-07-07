@@ -149,7 +149,7 @@ class ModelsPipeline(object):
 
         return ds
 
-    def blend(self, proportion=0.2, stratify=False, seed=100, indices=None):
+    def blend(self, proportion=0.2, stratify=False, seed=100, indices=None, add_diff=False):
         """Blends sequence of models.
 
         Parameters
@@ -159,6 +159,7 @@ class ModelsPipeline(object):
         seed : int, default False
         indices : list(np.ndarray,np.ndarray), default None
             Two numpy arrays that contain indices for train/test slicing.
+        add_diff : bool, default False
 
         Returns
         -------
@@ -189,6 +190,10 @@ class ModelsPipeline(object):
                 y = result.y_train
         result_train = pd.concat(result_train, axis=1)
         result_test = pd.concat(result_test, axis=1)
+
+        if add_diff:
+            result_train = feature_combiner(result_train)
+            result_test = feature_combiner(result_test)
 
         return Dataset(X_train=result_train, y_train=y, X_test=result_test)
 

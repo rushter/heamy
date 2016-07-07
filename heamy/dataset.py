@@ -24,9 +24,8 @@ class Dataset(object):
     y_test : pd.DataFrame, pd.Series or np.ndarray, optional
     preprocessor : function, optional
         A callable function that returns preprocessed data.
-
-        If `use_cache=True` then preprocessing step will be cached until function code is changed.
     use_cache : bool, default True
+        If `use_cache=True` then preprocessing step will be cached until function code is changed.
 
     Examples
     ----------
@@ -54,17 +53,21 @@ class Dataset(object):
         self._preprocessor = preprocessor
         self._setup_data(X_train, y_train, X_test, y_test)
 
-        if not ((X_train is not None) and (y_train is not None)):
-            self._process_data()
+        if self.loaded:
+            self._check_input()
+            self._setup_columns()
 
-        self._check_input()
+        if hasattr(self.__class__, 'preprocess'):
+            self._preprocessor = self.preprocess
+
+    def _setup_columns(self):
         if isinstance(self._X_train, (pd.Series, pd.DataFrame)):
             self.columns = self.X_train.columns.tolist()
         else:
             self.columns = []
 
     def _check_input(self):
-        if (self._X_train is None) or (self._y_train is None):
+        if not self.loaded:
             raise ValueError("Missing 2 required arrays: X_train and y_train.")
 
         if self._X_train.shape[0] != self._y_train.shape[0]:
@@ -79,9 +82,9 @@ class Dataset(object):
             raise ValueError("Found arrays with inconsistent numbers of features: X_train(%s), X_test(%s)" %
                              (self._X_train.shape[1], self._X_test.shape[1]))
 
-    def _process_data(self):
-        if hasattr(self.__class__, 'preprocess'):
-            self._preprocessor = self.preprocess
+    def load(self):
+        if self.loaded:
+            raise ValueError("Data is already loaded.")
 
         if callable(self._preprocessor):
             if not self._load_cache():
@@ -90,6 +93,9 @@ class Dataset(object):
                     self._setup_data(*data)
                 elif isinstance(data, dict):
                     self._setup_data(**data)
+
+                self._check_input()
+                self._setup_columns()
 
                 if self.use_cache:
                     self._cache()
@@ -140,13 +146,17 @@ class Dataset(object):
     def _setup_data(self, X_train=None, y_train=None, X_test=None, y_test=None):
 
         self._X_train = X_train
+        self._X_test = X_test
+
         if isinstance(y_train, (pd.Series, pd.DataFrame)):
             self._y_train = y_train.values
         else:
             self._y_train = y_train
 
-        self._X_test = X_test
-        self._y_test = y_test
+        if isinstance(y_test, (pd.Series, pd.DataFrame)):
+            self._y_test = y_test.values
+        else:
+            self._y_test = y_test
 
     def split(self, test_size=0.1, stratify=False, inplace=False, seed=33, indices=None):
         """Splits train set into two parts (train/test).
@@ -177,6 +187,10 @@ class Dataset(object):
 
         >>> res = dataset.split(test_size=0.3,seed=1111)
         """
+
+        if not self.loaded:
+            self.load()
+
         if stratify:
             stratify = self.y_train
         else:
@@ -222,19 +236,35 @@ class Dataset(object):
 
     @property
     def X_train(self):
-        return self._X_train
+        try:
+            return self._X_train
+        except AttributeError:
+            return None
 
     @property
     def y_train(self):
-        return self._y_train
+        try:
+            return self._y_train
+        except AttributeError:
+            return None
 
     @property
     def X_test(self):
-        return self._X_test
+        try:
+            return self._X_test
+        except AttributeError:
+            return None
 
     @property
     def y_test(self):
-        return self._y_test
+        try:
+            return self._y_test
+        except AttributeError:
+            return None
+
+    @property
+    def loaded(self):
+        return (self._X_train is not None) and (self._y_train is not None)
 
     @property
     def hash(self):

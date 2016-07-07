@@ -33,6 +33,9 @@ class BaseEstimator(object):
         else:
             self.dataset = dataset
 
+        if (not use_cache) and (not self.dataset.loaded):
+            self.dataset.load()
+
         if parameters is not None:
             self.parameters = parameters
         else:
@@ -120,6 +123,8 @@ class BaseEstimator(object):
                 logger.info('Loading %s\'s prediction from cache.' % self._name)
                 prediction = c.retrieve('prediction')
                 return prediction
+            elif not self.dataset.loaded:
+                self.dataset.load()
 
         prediction = self._predict(X_train=self.dataset.X_train, y_train=self.dataset.y_train,
                                    X_test=self.dataset.X_test)
@@ -181,6 +186,8 @@ class BaseEstimator(object):
             c = Cache(dhash, prefix='v')
             if c.available:
                 logger.info('Loading %s\'s validation results from cache.' % self._name)
+            elif (self.dataset.X_train is None) and (self.dataset.y_train is None):
+                self.dataset.load()
 
         scores = []
         y_true = []
@@ -250,7 +257,10 @@ class BaseEstimator(object):
                 logger.info('Loading %s\'s stack results from cache.' % self._name)
                 train = c.retrieve('train')
                 test = c.retrieve('test')
-                return Dataset(X_train=train, y_train=self.dataset.y_train, X_test=test)
+                y_train = c.retrieve('y_train')
+                return Dataset(X_train=train, y_train=y_train, X_test=test)
+            elif not self.dataset.loaded:
+                self.dataset.load()
 
         for i, fold in enumerate(self.dataset.kfold(k, stratify=stratify, seed=seed, shuffle=shuffle)):
             X_train, y_train, X_test, y_test, train_index, test_index = fold
@@ -266,7 +276,6 @@ class BaseEstimator(object):
 
             if train is None:
                 train = np.zeros((self.dataset.X_train.shape[0], prediction.shape[1]))
-                train.fill(np.nan)
 
             train[test_index] = prediction
 
@@ -281,6 +290,7 @@ class BaseEstimator(object):
         if self.use_cache:
             c.store('train', train)
             c.store('test', test)
+            c.store('y_train', self.dataset.y_train)
 
         return Dataset(X_train=train, y_train=self.dataset.y_train, X_test=test)
 
@@ -301,8 +311,6 @@ class BaseEstimator(object):
         -------
         `Dataset`
         """
-        X_train, y_train, X_test, y_test = self.dataset.split(test_size=proportion, stratify=stratify,
-                                                              seed=seed, indices=indices)
 
         if self.use_cache:
             pdict = {'proportion': proportion, 'stratify': stratify, 'seed': seed, 'indices': indices}
@@ -317,7 +325,13 @@ class BaseEstimator(object):
                 logger.info('Loading %s\'s blend results from cache.' % self._name)
                 train = c.retrieve('train')
                 test = c.retrieve('test')
-                return Dataset(X_train=train, y_train=y_test, X_test=test)
+                y_train = c.retrieve('y_train')
+                return Dataset(X_train=train, y_train=y_train, X_test=test)
+            elif not self.dataset.loaded:
+                self.dataset.load()
+
+        X_train, y_train, X_test, y_test = self.dataset.split(test_size=proportion, stratify=stratify,
+                                                              seed=seed, indices=indices)
 
         xt_shape = X_test.shape[0]
         x_t = concat(X_test, self.dataset.X_test)
@@ -326,6 +340,7 @@ class BaseEstimator(object):
         if self.use_cache:
             c.store('train', new_train)
             c.store('test', new_test)
+            c.store('y_train', y_test)
         return Dataset(new_train, y_test, new_test)
 
 
