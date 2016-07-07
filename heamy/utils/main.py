@@ -8,6 +8,11 @@ import numpy as np
 import pandas as pd
 from six.moves import range
 
+try:
+    import tqdm as tqdm
+except:
+    pass
+
 
 def report_score(scores, metric=None):
     if metric is not None:
@@ -91,3 +96,19 @@ def flush_cache():
     cache_dir = '.cache/heamy/'
     if os.path.exists(cache_dir):
         shutil.rmtree(cache_dir)
+
+
+def xgb_progressbar(rounds=1000):
+    """Progressbar for xgboost using tqdm library.
+
+    Examples
+    --------
+
+    >>> model = xgb.train(params, X_train, 1000, callbacks=[xgb_progress(1000), ])
+    """
+    pbar = tqdm(total=rounds)
+
+    def callback(_, ):
+        pbar.update(1)
+
+    return callback
