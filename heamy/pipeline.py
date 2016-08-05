@@ -188,8 +188,8 @@ class ModelsPipeline(object):
             result_test.append(test_df)
             if y is None:
                 y = result.y_train
-        result_train = pd.concat(result_train, axis=1)
-        result_test = pd.concat(result_test, axis=1)
+        result_train = pd.concat(result_train, axis=1, ignore_index=True)
+        result_test = pd.concat(result_test, axis=1, ignore_index=True)
 
         if add_diff:
             result_train = feature_combiner(result_train)

@@ -306,8 +306,13 @@ class Dataset(object):
 
         if ds.X_test is not None:
             X_test = concat(ds.X_test, self.X_test, axis=axis)
+        else:
+            X_test = None
+
         if ds.y_test is not None:
             y_test = concat(ds.y_test, self.y_test, axis=axis)
+        else:
+            y_test = None
 
         if inplace:
             self._X_train = X_train
