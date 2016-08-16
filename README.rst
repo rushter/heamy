@@ -29,12 +29,6 @@ Features
 * Automatic caching (data preprocessing, predictions from models)
 * Ensemble learning (stacking, blending, weighted average, etc.).
 
-Todo
-----
-* Feature selection
-* Feature transformations
-* Feature interactions
-
 
 Documentation
 -------------
