@@ -211,3 +211,16 @@ def test_merge():
     assert d1.X_train.shape[1] == 26
     assert d1.X_test.shape[1] == 26
 
+
+def test_convertion():
+    d1 = Dataset(X_train, y_train, X_test, y_test)
+    d1.to_csc()
+    d1.to_dense()
+
+    d1 = Dataset(X_train, y_train, X_test, y_test)
+    d1.to_csr()
+    d1.to_dense()
+
+    d1 = Dataset(X_train, y_train, X_test, y_test)
+    d1.to_dense()
+

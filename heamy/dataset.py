@@ -333,3 +333,11 @@ class Dataset(object):
         """Convert Dataset to scipy's Compressed Sparse Row matrix."""
         self._X_train = csr_matrix(self._X_train)
         self._X_test = csr_matrix(self._X_test)
+
+    def to_dense(self):
+        """Convert sparse Dataset to dense matrix."""
+        if hasattr(self._X_train, 'todense'):
+            self._X_train = self._X_train.todense()
+            self._X_test = self._X_test.todense()
+
+
