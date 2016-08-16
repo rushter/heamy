@@ -1,4 +1,4 @@
-heamy.feauture module
+heamy.feature module
 ======================================
 
 .. automodule:: heamy.feature
