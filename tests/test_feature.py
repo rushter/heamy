@@ -4,8 +4,9 @@ import numpy as np
 
 from sklearn.cross_validation import train_test_split
 from sklearn.datasets import load_boston
+from sklearn.datasets import load_iris
 
-from heamy.feature import onehot_features, factorize
+from heamy.feature import onehot_features, factorize, woe, mean_target
 
 
 def test_onehot():
@@ -39,3 +40,13 @@ def test_factorize():
     assert t_test['b'].dropna().nunique() == 2
 
 
+def test_target_transformations():
+    X = pd.DataFrame(np.random.randint(2, size=(100, 2)), columns=('x', 'target'))
+    output = woe(X, 'x', 'target')
+    assert output.shape[0] == 100
+
+    output = mean_target(X, 'x', 'target', C=10)
+    assert output.shape[0] == 100
+
+    output = mean_target(X, 'x', 'target', C=None)
+    assert output.shape[0] == 100

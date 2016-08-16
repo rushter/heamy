@@ -55,5 +55,6 @@ def test_report_score():
 
 
 def test_np_hash():
+    np.random.seed(9999)
     x = np.random.rand(100, 100)
-    assert np_hash(x) == 'd57d814af623d1289ecdf803af59f108'
+    assert np_hash(x) == '44ea3be8b8ddc5af8e3c2a01ba5c6be6'
