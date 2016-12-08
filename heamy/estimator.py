@@ -2,7 +2,10 @@
 import hashlib
 import inspect
 import logging
-from inspect import signature
+
+# NOTE:
+# 'getargspec' will be deprecated in future
+from inspect import getargspec
 
 import numpy as np
 
@@ -54,7 +57,7 @@ class BaseEstimator(object):
         est = self._estimator
         self._is_class = isinstance(est, type)
         if not self._is_class:
-            args = set(signature(est).args)
+            args = set(getargspec(est).args)
             if 'self' in args:
                 args.remove('self')
             if not REQUIRED_ARGS.issubset(args):
