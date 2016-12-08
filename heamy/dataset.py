@@ -5,8 +5,8 @@ import logging
 
 import pandas as pd
 from scipy.sparse import csr_matrix, csc_matrix
-from sklearn.cross_validation import train_test_split, StratifiedKFold, KFold
 
+from sklearn.model_selection import train_test_split, StratifiedKFold, KFold
 from .cache import Cache, numpy_buffer
 from .utils.main import idx, concat
 
@@ -225,11 +225,11 @@ class Dataset(object):
         X_train, y_train, X_test, y_test, train_index, test_index
         """
         if stratify:
-            kf = StratifiedKFold(y=self.y_train, n_folds=k, random_state=seed, shuffle=shuffle)
+            kf = StratifiedKFold(n_splits=k, random_state=seed, shuffle=shuffle)
         else:
-            kf = KFold(self.y_train.shape[0], n_folds=k, random_state=seed, shuffle=shuffle)
+            kf = KFold(n_splits=k, random_state=seed, shuffle=shuffle)
 
-        for train_index, test_index in kf:
+        for train_index, test_index in kf.split(self.X_train, self.y_train):
             X_train, y_train = idx(self.X_train, train_index), self.y_train[train_index]
             X_test, y_test = idx(self.X_train, test_index), self.y_train[test_index]
             yield X_train, y_train, X_test, y_test, train_index, test_index

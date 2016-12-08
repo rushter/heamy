@@ -2,6 +2,9 @@
 import hashlib
 import inspect
 import logging
+
+# NOTE:
+# 'getargspec' will be deprecated in future
 from inspect import getargspec
 
 import numpy as np
