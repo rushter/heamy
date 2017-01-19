@@ -7,7 +7,7 @@ import os
 import mock
 
 MOCK_MODULES = ['numpy', 'pandas', 'scikit-learn', 'scipy', 'scipy.sparse', 'scipy.stats',
-                'scipy.optimize', 'sklearn.cross_validation']
+                'scipy.optimize', 'sklearn.cross_validation', 'sklearn.model_selection']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = mock.Mock()
 
