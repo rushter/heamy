@@ -92,8 +92,7 @@ def feature_combiner(df):
     return df
 
 
-def flush_cache():
-    cache_dir = '.cache/heamy/'
+def flush_cache(cache_dir = '.cache/heamy/'):
     if os.path.exists(cache_dir):
         shutil.rmtree(cache_dir)
 
