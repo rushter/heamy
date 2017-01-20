@@ -5,15 +5,15 @@ import os
 import json
 import pandas as pd
 
-CACHE_DIR = '.cache/heamy/'
-
 
 class Cache(object):
-    def __init__(self, hash, prefix=''):
+    def __init__(self, hashval, prefix='', cache_dir='.cache/heamy/'):
+
         if prefix != '':
-            hash = '%s%s' % (prefix, hash)
-        self._hash = hash
-        self._hash_dir = os.path.join(CACHE_DIR, hash)
+            hashval = '%s%s' % (prefix, hashval)
+        self._hash = hashval
+        self._cache_dir = cache_dir
+        self._hash_dir = os.path.join(cache_dir, hashval)
 
     def store(self, key, data):
         """Takes an array and stores it in the cache."""
@@ -29,13 +29,14 @@ class Cache(object):
 
     def retrieve(self, key):
         """Retrieves a cached array if possible."""
-        columns_file = os.path.join(self._hash_dir, '%s.json' % key)
-        cache_file = os.path.join(self._hash_dir, key) + '.npy'
+        column_file = os.path.join(self._hash_dir, '%s.json' % key)
+        cache_file = os.path.join(self._hash_dir, '%s.npy' % key)
 
         if os.path.exists(cache_file):
             data = np.load(cache_file)
-            if os.path.exists(columns_file):
-                columns = json.load(open(columns_file, 'r'))
+            if os.path.exists(column_file):
+                with open(column_file, 'r') as json_file:
+                    columns = json.load(json_file)
                 data = pd.DataFrame(data, columns=columns)
         else:
             return None
@@ -44,7 +45,7 @@ class Cache(object):
 
     @property
     def available(self):
-        return os.path.exists(os.path.join(CACHE_DIR, self._hash))
+        return os.path.exists(os.path.join(self._cache_dir, self._hash))
 
 
 def numpy_buffer(ndarray):
