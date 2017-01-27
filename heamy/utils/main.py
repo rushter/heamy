@@ -55,6 +55,7 @@ def reshape_1d(df):
 
 
 def idx(df, index):
+    """Universal indexing for numpy and pandas objects."""
     if isinstance(df, (pd.DataFrame, pd.Series)):
         return df.iloc[index]
     else:

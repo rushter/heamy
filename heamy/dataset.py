@@ -2,6 +2,7 @@
 import hashlib
 import inspect
 import logging
+import numpy as np
 
 import pandas as pd
 from scipy.sparse import csr_matrix, csc_matrix
@@ -84,7 +85,7 @@ class Dataset(object):
 
     def load(self):
         if self.loaded:
-            raise ValueError("Data is already loaded.")
+            raise ValueError("Dataset is already loaded.")
 
         if callable(self._preprocessor):
             if not self._load_cache():
@@ -128,7 +129,7 @@ class Dataset(object):
                 cache.store('y_test', self._y_test)
             return True
         else:
-            logger.warning("%s can not be cached." % self.__repr__())
+            logger.warning("%s can't be cached." % self.__repr__())
             return False
 
     @property
@@ -145,18 +146,21 @@ class Dataset(object):
 
     def _setup_data(self, X_train=None, y_train=None, X_test=None, y_test=None):
 
-        self._X_train = X_train
-        self._X_test = X_test
+        self._X_train = self._validate_data(X_train)
+        self._X_test = self._validate_data(X_test)
 
-        if isinstance(y_train, (pd.Series, pd.DataFrame)):
-            self._y_train = y_train.values
-        else:
-            self._y_train = y_train
+        self._y_train = self._validate_data(y_train, only_numpy=True)
+        self._y_test = self._validate_data(y_test, only_numpy=True)
 
-        if isinstance(y_test, (pd.Series, pd.DataFrame)):
-            self._y_test = y_test.values
+    def _validate_data(self, data, only_numpy=False):
+        if not only_numpy:
+            dtypes = (pd.Series, pd.DataFrame, np.ndarray)
         else:
-            self._y_test = y_test
+            dtypes = (np.ndarray,)
+
+        if not isinstance(data, dtypes) and (data is not None):
+            data = np.array(data)
+        return data
 
     def split(self, test_size=0.1, stratify=False, inplace=False, seed=33, indices=None):
         """Splits train set into two parts (train/test).
@@ -166,9 +170,9 @@ class Dataset(object):
         test_size : float, default 0.1
         stratify : bool, default False
         inplace : bool, default False
-            If `True` then dataset's train/test will be replaced with new data.
+            If `True` then dataset's train/test sets will be replaced with new data.
         seed : int, default 33
-        indices : list(np.ndarray,np.ndarray), default None
+        indices : list(np.ndarray, np.ndarray), default None
             Two numpy arrays that contain indices for train/test slicing.
 
         Returns
@@ -236,31 +240,19 @@ class Dataset(object):
 
     @property
     def X_train(self):
-        try:
-            return self._X_train
-        except AttributeError:
-            return None
+        return self._X_train
 
     @property
     def y_train(self):
-        try:
-            return self._y_train
-        except AttributeError:
-            return None
+        return self._y_train
 
     @property
     def X_test(self):
-        try:
-            return self._X_test
-        except AttributeError:
-            return None
+        return self._X_test
 
     @property
     def y_test(self):
-        try:
-            return self._y_test
-        except AttributeError:
-            return None
+        return self._y_test
 
     @property
     def loaded(self):
@@ -268,9 +260,11 @@ class Dataset(object):
 
     @property
     def hash(self):
+        """Return md5 hash for current dataset."""
         if self._hash is None:
             m = hashlib.new('md5')
             if self._preprocessor is None:
+                # generate hash from numpy array
                 m.update(numpy_buffer(self._X_train))
                 m.update(numpy_buffer(self._y_train))
                 if self._X_test is not None:
@@ -278,6 +272,7 @@ class Dataset(object):
                 if self._y_test is not None:
                     m.update(numpy_buffer(self._y_test))
             elif callable(self._preprocessor):
+                # generate hash from user defined object (source code)
                 m.update(inspect.getsource(self._preprocessor).encode('utf-8'))
 
             self._hash = m.hexdigest()
@@ -317,10 +312,14 @@ class Dataset(object):
         if inplace:
             self._X_train = X_train
             self._y_train = y_train
+
             if X_test is not None:
                 self._X_test = X_test
+
             if y_test is not None:
                 self._y_test = y_test
+
+            return None
 
         return Dataset(X_train, y_train, X_test, y_test)
 
@@ -339,5 +338,3 @@ class Dataset(object):
         if hasattr(self._X_train, 'todense'):
             self._X_train = self._X_train.todense()
             self._X_test = self._X_test.todense()
-
-
