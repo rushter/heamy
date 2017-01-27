@@ -79,6 +79,7 @@ class BaseEstimator(object):
     def hash(self):
         if self._hash is None:
             m = hashlib.new('md5')
+            # generate hash from model's parameters
             for key in sorted(self.parameters.keys()):
                 h_string = ('%s-%s' % (key, self._convert_parameter(self.parameters[key]))).encode('utf-8')
                 m.update(h_string)
@@ -102,6 +103,7 @@ class BaseEstimator(object):
 
     def _predict(self, X_train, y_train, X_test, y_test=None):
         if self._is_class:
+            # class-based definition
             estimator = self._estimator(**self.parameters)
             estimator.fit(X_train, y_train)
             if self.probability:
@@ -110,10 +112,11 @@ class BaseEstimator(object):
                 result = estimator.predict(X_test)
 
             if self.problem == 'classification' and self.probability:
-                # Return second column for binary classification
+                # return second column for binary classification
                 if len(result.shape) == 2 and result.shape[1] == 2:
                     result = result[:, 1]
         else:
+            # function-based definition
             result = self._estimator(X_train=X_train, y_train=y_train,
                                      X_test=X_test, y_test=y_test, **self.parameters)
 
@@ -137,7 +140,7 @@ class BaseEstimator(object):
         return prediction
 
     def _dhash(self, params):
-        """Get hash of the dictionary object."""
+        """Generate hash of the dictionary object."""
         m = hashlib.new('md5')
         m.update(self.hash.encode('utf-8'))
         for key in sorted(params.keys()):
@@ -146,7 +149,7 @@ class BaseEstimator(object):
         return m.hexdigest()
 
     def validate(self, scorer=None, k=1, test_size=0.1, stratify=False, shuffle=True, seed=100, indices=None):
-        """Evaluate a score by cross-validation.
+        """Evaluate score by cross-validation.
 
         Parameters
         ----------
