@@ -30,10 +30,11 @@ Features
 * Ensemble learning (stacking, blending, weighted average, etc.).
 
 
-Documentation
--------------
+Links
+-----
 
 * Documentation: http://heamy.readthedocs.io/en/latest/        
 * Examples: https://github.com/rushter/heamy/tree/master/examples
+* Ensemble learning guide http://mlwave.com/kaggle-ensembling-guide/
 
 
