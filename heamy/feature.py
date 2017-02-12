@@ -2,6 +2,9 @@
 
 import pandas as pd
 import numpy as np
+import re
+from scipy.sparse import csr_matrix, hstack
+from sklearn.preprocessing import OneHotEncoder
 
 
 def onehot_features(train, test, features, full=False, sparse=False, dummy_na=True):
@@ -147,3 +150,41 @@ def mean_target(df, feature_name, target_name, C=None):
 
     global_mean = df[target_name].mean()
     return df.groupby(feature_name)[target_name].transform(group_mean)
+
+
+def xgb_to_features(model, X_train, X_test):
+    """Converts xgboost model into categorical features.
+    Reference:
+    "Practical Lessons from Predicting Clicks on Ads at Facebook"
+    https://research.fb.com/publications/practical-lessons-from-predicting-clicks-on-ads-at-facebook/
+    """
+    import xgboost as xgb
+    f_train = model.predict(xgb.DMatrix(X_train), pred_leaf=True)
+    f_test = model.predict(xgb.DMatrix(X_test), pred_leaf=True)
+    enc = OneHotEncoder()
+    enc.fit(f_train)
+    return enc.transform(f_train), enc.transform(f_test)
+
+
+class XGBParser(object):
+    def __init__(self):
+        self.groups = set()
+
+    def load_dump(self, path):
+
+        dump = open(path, 'r').read()
+        search = re.finditer('\[f([0-9]*?)<(.*?)\]', dump, re.MULTILINE)
+        for group in search:
+            group = group.groups()
+            idx, val = int(group[0]), float(group[1])
+            self.groups.add((idx, val))
+        # logging.info('Found %s splits.' % (len(self.groups)))
+
+    def transform(self, X):
+        output = []
+        for i, group in enumerate(self.groups):
+            idx, val = group
+            cond = csr_matrix((X[:, idx] < val).reshape((-1, 1))).astype(np.int8)
+            output.append(cond)
+        output = hstack(output, dtype=np.int8)
+        return output
