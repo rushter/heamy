@@ -2,7 +2,7 @@
 Usage
 =====
 
-To use heamy in a project:
+Using heamy in a project:
 
 .. code:: python
 

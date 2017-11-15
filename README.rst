@@ -33,7 +33,7 @@ Features
 Links
 -----
 
-* Documentation: http://heamy.readthedocs.io/en/latest/        
+* API reference: http://heamy.readthedocs.io/en/latest/
 * Examples: https://github.com/rushter/heamy/tree/master/examples
 * Ensemble learning guide http://mlwave.com/kaggle-ensembling-guide/
 
