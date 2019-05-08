@@ -27,9 +27,15 @@ class Optimizer(object):
 
     def minimize(self, method):
         starting_values = [0.5] * len(self.predictions)
-        cons = ({'type': 'eq', 'fun': lambda w: 1 - sum(w)})
+        cons = {"type": "eq", "fun": lambda w: 1 - sum(w)}
         bounds = [(0, 1)] * len(self.predictions)
-        res = minimize(self.loss_func, starting_values, method=method, bounds=bounds, constraints=cons)
-        print('Best Score (%s): %s' % (self.scorer.__name__, res['fun']))
-        print('Best Weights: %s' % res['x'])
-        return res['x']
+        res = minimize(
+            self.loss_func,
+            starting_values,
+            method=method,
+            bounds=bounds,
+            constraints=cons,
+        )
+        print("Best Score (%s): %s" % (self.scorer.__name__, res["fun"]))
+        print("Best Weights: %s" % res["x"])
+        return res["x"]

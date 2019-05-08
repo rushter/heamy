@@ -79,3 +79,6 @@ dist: clean
 
 install: clean
 	python setup.py install
+
+format:
+    black heamy

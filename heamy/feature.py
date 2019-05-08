@@ -36,8 +36,8 @@ def onehot_features(train, test, features, full=False, sparse=False, dummy_na=Tr
         else:
             categories = train[column].dropna().unique()
 
-        train[column] = train[column].astype('category', categories=categories)
-        test[column] = test[column].astype('category', categories=categories)
+        train[column] = train[column].astype("category", categories=categories)
+        test[column] = test[column].astype("category", categories=categories)
 
     train = pd.get_dummies(train, columns=features, dummy_na=dummy_na, sparse=sparse)
     test = pd.get_dummies(test, columns=features, dummy_na=dummy_na, sparse=sparse)
@@ -114,7 +114,7 @@ def woe(df, feature_name, target_name):
         return np.log(rel_non_event / rel_event) * 100
 
     if df[target_name].nunique() > 2:
-        raise ValueError('Target column should be binary (1/0).')
+        raise ValueError("Target column should be binary (1/0).")
 
     event_total = float(df[df[target_name] == 1.0].shape[0])
     non_event_total = float(df.shape[0] - event_total)
@@ -145,6 +145,7 @@ def mean_target(df, feature_name, target_name, C=None):
         group_size = float(group.shape[0])
         if C is None:
             return (group.mean() * group_size + global_mean) / group_size
+
         else:
             return (group.mean() * group_size + global_mean * C) / (group_size + C)
 
@@ -159,6 +160,7 @@ def xgb_to_features(model, X_train, X_test):
     https://research.fb.com/publications/practical-lessons-from-predicting-clicks-on-ads-at-facebook/
     """
     import xgboost as xgb
+
     f_train = model.predict(xgb.DMatrix(X_train), pred_leaf=True)
     f_test = model.predict(xgb.DMatrix(X_test), pred_leaf=True)
     enc = OneHotEncoder()
@@ -172,13 +174,14 @@ class XGBParser(object):
 
     def load_dump(self, path):
 
-        dump = open(path, 'r').read()
-        search = re.finditer('\[f([0-9]*?)<(.*?)\]', dump, re.MULTILINE)
+        dump = open(path, "r").read()
+        search = re.finditer("\[f([0-9]*?)<(.*?)\]", dump, re.MULTILINE)
         for group in search:
             group = group.groups()
             idx, val = int(group[0]), float(group[1])
             self.groups.add((idx, val))
-        # logging.info('Found %s splits.' % (len(self.groups)))
+
+    # logging.info('Found %s splits.' % (len(self.groups)))
 
     def transform(self, X):
         output = []

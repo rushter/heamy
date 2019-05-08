@@ -20,7 +20,7 @@ class ModelsPipeline(object):
             if isinstance(model, (Regressor, Classifier)):
                 self.add(model)
             else:
-                raise ValueError('Unrecognized estimator.')
+                raise ValueError("Unrecognized estimator.")
 
     def add(self, model):
         """Adds a single model.
@@ -32,7 +32,7 @@ class ModelsPipeline(object):
         if isinstance(model, (Regressor, Classifier)):
             self.models.append(model)
         else:
-            raise ValueError('Unrecognized estimator.')
+            raise ValueError("Unrecognized estimator.")
 
     def apply(self, func):
         """Applies function along models output.
@@ -101,7 +101,15 @@ class ModelsPipeline(object):
         """
         return self.apply(lambda x: np.min(x, axis=0))
 
-    def stack(self, k=5, stratify=False, shuffle=True, seed=100, full_test=True, add_diff=False):
+    def stack(
+        self,
+        k=5,
+        stratify=False,
+        shuffle=True,
+        seed=100,
+        full_test=True,
+        add_diff=False,
+    ):
         """Stacks sequence of models.
 
         Parameters
@@ -130,9 +138,15 @@ class ModelsPipeline(object):
         y = None
 
         for model in self.models:
-            result = model.stack(k=k, stratify=stratify, shuffle=shuffle, seed=seed, full_test=full_test)
-            train_df = pd.DataFrame(result.X_train, columns=generate_columns(result.X_train, model.name))
-            test_df = pd.DataFrame(result.X_test, columns=generate_columns(result.X_test, model.name))
+            result = model.stack(
+                k=k, stratify=stratify, shuffle=shuffle, seed=seed, full_test=full_test
+            )
+            train_df = pd.DataFrame(
+                result.X_train, columns=generate_columns(result.X_train, model.name)
+            )
+            test_df = pd.DataFrame(
+                result.X_test, columns=generate_columns(result.X_test, model.name)
+            )
 
             result_train.append(train_df)
             result_test.append(test_df)
@@ -149,7 +163,9 @@ class ModelsPipeline(object):
 
         return ds
 
-    def blend(self, proportion=0.2, stratify=False, seed=100, indices=None, add_diff=False):
+    def blend(
+        self, proportion=0.2, stratify=False, seed=100, indices=None, add_diff=False
+    ):
         """Blends sequence of models.
 
         Parameters
@@ -180,9 +196,15 @@ class ModelsPipeline(object):
         y = None
 
         for model in self.models:
-            result = model.blend(proportion=proportion, stratify=stratify, seed=seed, indices=indices)
-            train_df = pd.DataFrame(result.X_train, columns=generate_columns(result.X_train, model.name))
-            test_df = pd.DataFrame(result.X_test, columns=generate_columns(result.X_test, model.name))
+            result = model.blend(
+                proportion=proportion, stratify=stratify, seed=seed, indices=indices
+            )
+            train_df = pd.DataFrame(
+                result.X_train, columns=generate_columns(result.X_train, model.name)
+            )
+            test_df = pd.DataFrame(
+                result.X_test, columns=generate_columns(result.X_test, model.name)
+            )
 
             result_train.append(train_df)
             result_test.append(test_df)
@@ -197,7 +219,7 @@ class ModelsPipeline(object):
 
         return Dataset(X_train=result_train, y_train=y, X_test=result_test)
 
-    def find_weights(self, scorer, test_size=0.2, method='SLSQP'):
+    def find_weights(self, scorer, test_size=0.2, method="SLSQP"):
         """Finds optimal weights for weighted average of models.
 
         Parameters
@@ -257,12 +279,28 @@ class PipeApply(object):
             results.append(model.predict())
         return self.function(results)
 
-    def validate(self, scorer=None, k=1, test_size=0.1, stratify=False, shuffle=True, seed=100, indices=None):
-        params = dict(k=k, test_size=test_size, stratify=stratify, scorer=scorer,
-                      shuffle=shuffle, seed=seed, indices=indices)
+    def validate(
+        self,
+        scorer=None,
+        k=1,
+        test_size=0.1,
+        stratify=False,
+        shuffle=True,
+        seed=100,
+        indices=None,
+    ):
+        params = dict(
+            k=k,
+            test_size=test_size,
+            stratify=stratify,
+            scorer=scorer,
+            shuffle=shuffle,
+            seed=seed,
+            indices=indices,
+        )
         scores = []
-        scorer = params['scorer']
-        params['scorer'] = None
+        scorer = params["scorer"]
+        params["scorer"] = None
         y_preds_grouped, y_true_grouped = group_models(self.models, params)
         for i in y_preds_grouped.keys():
             result = self.function(y_preds_grouped[i])

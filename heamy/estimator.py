@@ -14,22 +14,24 @@ from .dataset import Dataset
 from .utils.main import concat, tsplit, reshape_1d
 from .utils.main import report_score
 
-REQUIRED_ARGS = set(['X_train', 'y_train', 'X_test', 'y_test'])
-logger = logging.getLogger('heamy.estimator')
+REQUIRED_ARGS = set(["X_train", "y_train", "X_test", "y_test"])
+logger = logging.getLogger("heamy.estimator")
 
 
 class BaseEstimator(object):
     problem = None
 
-    def __init__(self, dataset, estimator=None, parameters=None, name=None, use_cache=True):
+    def __init__(
+        self, dataset, estimator=None, parameters=None, name=None, use_cache=True
+    ):
         """Base class for estimators.
         This class should not be used directly."""
         if estimator is not None:
             self._estimator = estimator
-        elif hasattr(self.__class__, 'estimator'):
+        elif hasattr(self.__class__, "estimator"):
             self._estimator = self.estimator
         else:
-            raise ValueError('Missing required estimator object.')
+            raise ValueError("Missing required estimator object.")
 
         if callable(dataset):
             self.dataset = dataset()
@@ -50,7 +52,7 @@ class BaseEstimator(object):
         self._check_estimator()
 
         if name is None:
-            name = '%s(%s)' % (self.estimator_name, self.hash)
+            name = "%s(%s)" % (self.estimator_name, self.hash)
         self._name = name
 
     def _check_estimator(self):
@@ -58,14 +60,17 @@ class BaseEstimator(object):
         self._is_class = isinstance(est, type)
         if not self._is_class:
             args = set(getargspec(est).args)
-            if 'self' in args:
-                args.remove('self')
+            if "self" in args:
+                args.remove("self")
             if not REQUIRED_ARGS.issubset(args):
-                raise ValueError('Missing required arguments. Please specify %s' % ','.join(REQUIRED_ARGS))
+                raise ValueError(
+                    "Missing required arguments. Please specify %s"
+                    % ",".join(REQUIRED_ARGS)
+                )
 
     @property
     def estimator_name(self):
-        if hasattr(self.__class__, 'estimator'):
+        if hasattr(self.__class__, "estimator"):
             name = self.__class__.__name__
         else:
             name = self._estimator.__name__
@@ -78,16 +83,18 @@ class BaseEstimator(object):
     @property
     def hash(self):
         if self._hash is None:
-            m = hashlib.new('md5')
+            m = hashlib.new("md5")
             # generate hash from model's parameters
             for key in sorted(self.parameters.keys()):
-                h_string = ('%s-%s' % (key, self._convert_parameter(self.parameters[key]))).encode('utf-8')
+                h_string = (
+                    "%s-%s" % (key, self._convert_parameter(self.parameters[key]))
+                ).encode("utf-8")
                 m.update(h_string)
-            m.update(self.estimator_name.encode('utf-8'))
-            m.update(self.dataset.hash.encode('utf-8'))
+            m.update(self.estimator_name.encode("utf-8"))
+            m.update(self.dataset.hash.encode("utf-8"))
 
             if not self._is_class:
-                m.update(inspect.getsource(self._estimator).encode('utf-8'))
+                m.update(inspect.getsource(self._estimator).encode("utf-8"))
             self._hash = m.hexdigest()
 
         return self._hash
@@ -99,6 +106,7 @@ class BaseEstimator(object):
         """If callable then return object's source code."""
         if callable(x):
             return inspect.getsource(x)
+
         return x
 
     def _predict(self, X_train, y_train, X_test, y_test=None):
@@ -111,44 +119,62 @@ class BaseEstimator(object):
             else:
                 result = estimator.predict(X_test)
 
-            if self.problem == 'classification' and self.probability:
+            if self.problem == "classification" and self.probability:
                 # return second column for binary classification
                 if len(result.shape) == 2 and result.shape[1] == 2:
                     result = result[:, 1]
         else:
             # function-based definition
-            result = self._estimator(X_train=X_train, y_train=y_train,
-                                     X_test=X_test, y_test=y_test, **self.parameters)
+            result = self._estimator(
+                X_train=X_train,
+                y_train=y_train,
+                X_test=X_test,
+                y_test=y_test,
+                **self.parameters
+            )
 
         return result
 
     def predict(self):
         if self.use_cache:
-            c = Cache(self.hash, prefix='p')
+            c = Cache(self.hash, prefix="p")
             if c.available:
-                logger.info('Loading %s\'s prediction from cache.' % self._name)
-                prediction = c.retrieve('prediction')
+                logger.info("Loading %s's prediction from cache." % self._name)
+                prediction = c.retrieve("prediction")
                 return prediction
+
             elif not self.dataset.loaded:
                 self.dataset.load()
 
-        prediction = self._predict(X_train=self.dataset.X_train, y_train=self.dataset.y_train,
-                                   X_test=self.dataset.X_test)
+        prediction = self._predict(
+            X_train=self.dataset.X_train,
+            y_train=self.dataset.y_train,
+            X_test=self.dataset.X_test,
+        )
         if self.use_cache:
-            c.store('prediction', prediction)
+            c.store("prediction", prediction)
 
         return prediction
 
     def _dhash(self, params):
         """Generate hash of the dictionary object."""
-        m = hashlib.new('md5')
-        m.update(self.hash.encode('utf-8'))
+        m = hashlib.new("md5")
+        m.update(self.hash.encode("utf-8"))
         for key in sorted(params.keys()):
-            h_string = ('%s-%s' % (key, params[key])).encode('utf-8')
+            h_string = ("%s-%s" % (key, params[key])).encode("utf-8")
             m.update(h_string)
         return m.hexdigest()
 
-    def validate(self, scorer=None, k=1, test_size=0.1, stratify=False, shuffle=True, seed=100, indices=None):
+    def validate(
+        self,
+        scorer=None,
+        k=1,
+        test_size=0.1,
+        stratify=False,
+        shuffle=True,
+        seed=100,
+        indices=None,
+    ):
         """Evaluate score by cross-validation.
 
         Parameters
@@ -182,16 +208,22 @@ class BaseEstimator(object):
         >>> res = model_rf.validate(mean_absolute_error,indices=(train_index,test_index))
         """
         if self.use_cache:
-            pdict = {'k': k, 'stratify': stratify, 'shuffle': shuffle, 'seed': seed, 'test_size': test_size}
+            pdict = {
+                "k": k,
+                "stratify": stratify,
+                "shuffle": shuffle,
+                "seed": seed,
+                "test_size": test_size,
+            }
 
             if indices is not None:
-                pdict['train_index'] = np_hash(indices[0])
-                pdict['test_index'] = np_hash(indices[1])
+                pdict["train_index"] = np_hash(indices[0])
+                pdict["test_index"] = np_hash(indices[1])
 
             dhash = self._dhash(pdict)
-            c = Cache(dhash, prefix='v')
+            c = Cache(dhash, prefix="v")
             if c.available:
-                logger.info('Loading %s\'s validation results from cache.' % self._name)
+                logger.info("Loading %s's validation results from cache." % self._name)
             elif (self.dataset.X_train is None) and (self.dataset.y_train is None):
                 self.dataset.load()
 
@@ -200,21 +232,24 @@ class BaseEstimator(object):
         y_pred = []
 
         if k == 1:
-            X_train, y_train, X_test, y_test = self.dataset.split(test_size=test_size, stratify=stratify,
-                                                                  seed=seed, indices=indices)
+            X_train, y_train, X_test, y_test = self.dataset.split(
+                test_size=test_size, stratify=stratify, seed=seed, indices=indices
+            )
             if self.use_cache and c.available:
-                prediction = c.retrieve('0')
+                prediction = c.retrieve("0")
             else:
                 prediction = self._predict(X_train, y_train, X_test, y_test)
                 if self.use_cache:
-                    c.store('0', prediction)
+                    c.store("0", prediction)
             if scorer is not None:
                 scores.append(scorer(y_test, prediction))
             y_true.append(y_test)
             y_pred.append(prediction)
 
         else:
-            for i, fold in enumerate(self.dataset.kfold(k, stratify=stratify, seed=seed, shuffle=shuffle)):
+            for i, fold in enumerate(
+                self.dataset.kfold(k, stratify=stratify, seed=seed, shuffle=shuffle)
+            ):
                 X_train, y_train, X_test, y_test, train_index, test_index = fold
                 if self.use_cache and c.available:
                     prediction = c.retrieve(str(i))
@@ -222,7 +257,7 @@ class BaseEstimator(object):
                     prediction = None
 
                 if prediction is None:
-                    logger.info('Calculating %s\'s fold #%s' % (self._name, i + 1))
+                    logger.info("Calculating %s's fold #%s" % (self._name, i + 1))
                     prediction = self._predict(X_train, y_train, X_test, y_test)
                     if self.use_cache:
                         c.store(str(i), prediction)
@@ -256,21 +291,30 @@ class BaseEstimator(object):
         test = []
 
         if self.use_cache:
-            pdict = {'k': k, 'stratify': stratify, 'shuffle': shuffle, 'seed': seed, 'full_test': full_test}
+            pdict = {
+                "k": k,
+                "stratify": stratify,
+                "shuffle": shuffle,
+                "seed": seed,
+                "full_test": full_test,
+            }
             dhash = self._dhash(pdict)
-            c = Cache(dhash, prefix='s')
+            c = Cache(dhash, prefix="s")
             if c.available:
-                logger.info('Loading %s\'s stack results from cache.' % self._name)
-                train = c.retrieve('train')
-                test = c.retrieve('test')
-                y_train = c.retrieve('y_train')
+                logger.info("Loading %s's stack results from cache." % self._name)
+                train = c.retrieve("train")
+                test = c.retrieve("test")
+                y_train = c.retrieve("y_train")
                 return Dataset(X_train=train, y_train=y_train, X_test=test)
+
             elif not self.dataset.loaded:
                 self.dataset.load()
 
-        for i, fold in enumerate(self.dataset.kfold(k, stratify=stratify, seed=seed, shuffle=shuffle)):
+        for i, fold in enumerate(
+            self.dataset.kfold(k, stratify=stratify, seed=seed, shuffle=shuffle)
+        ):
             X_train, y_train, X_test, y_test, train_index, test_index = fold
-            logger.info('Calculating %s\'s fold #%s' % (self._name, i + 1))
+            logger.info("Calculating %s's fold #%s" % (self._name, i + 1))
             if full_test:
                 prediction = reshape_1d(self._predict(X_train, y_train, X_test, y_test))
             else:
@@ -286,17 +330,19 @@ class BaseEstimator(object):
             train[test_index] = prediction
 
         if full_test:
-            logger.info('Calculating %s\'s test data' % self._name)
-            test = self._predict(self.dataset.X_train, self.dataset.y_train, self.dataset.X_test)
+            logger.info("Calculating %s's test data" % self._name)
+            test = self._predict(
+                self.dataset.X_train, self.dataset.y_train, self.dataset.X_test
+            )
         else:
             test = np.mean(test, axis=0)
 
         test = reshape_1d(test)
 
         if self.use_cache:
-            c.store('train', train)
-            c.store('test', test)
-            c.store('y_train', self.dataset.y_train)
+            c.store("train", train)
+            c.store("test", test)
+            c.store("y_train", self.dataset.y_train)
 
         return Dataset(X_train=train, y_train=self.dataset.y_train, X_test=test)
 
@@ -319,34 +365,41 @@ class BaseEstimator(object):
         """
 
         if self.use_cache:
-            pdict = {'proportion': proportion, 'stratify': stratify, 'seed': seed, 'indices': indices}
+            pdict = {
+                "proportion": proportion,
+                "stratify": stratify,
+                "seed": seed,
+                "indices": indices,
+            }
 
             if indices is not None:
-                pdict['train_index'] = np_hash(indices[0])
-                pdict['test_index'] = np_hash(indices[1])
+                pdict["train_index"] = np_hash(indices[0])
+                pdict["test_index"] = np_hash(indices[1])
 
             dhash = self._dhash(pdict)
-            c = Cache(dhash, prefix='b')
+            c = Cache(dhash, prefix="b")
             if c.available:
-                logger.info('Loading %s\'s blend results from cache.' % self._name)
-                train = c.retrieve('train')
-                test = c.retrieve('test')
-                y_train = c.retrieve('y_train')
+                logger.info("Loading %s's blend results from cache." % self._name)
+                train = c.retrieve("train")
+                test = c.retrieve("test")
+                y_train = c.retrieve("y_train")
                 return Dataset(X_train=train, y_train=y_train, X_test=test)
+
             elif not self.dataset.loaded:
                 self.dataset.load()
 
-        X_train, y_train, X_test, y_test = self.dataset.split(test_size=proportion, stratify=stratify,
-                                                              seed=seed, indices=indices)
+        X_train, y_train, X_test, y_test = self.dataset.split(
+            test_size=proportion, stratify=stratify, seed=seed, indices=indices
+        )
 
         xt_shape = X_test.shape[0]
         x_t = concat(X_test, self.dataset.X_test)
         prediction_concat = reshape_1d(self._predict(X_train, y_train, x_t))
         new_train, new_test = tsplit(prediction_concat, xt_shape)
         if self.use_cache:
-            c.store('train', new_train)
-            c.store('test', new_test)
-            c.store('y_train', y_test)
+            c.store("train", new_train)
+            c.store("test", new_test)
+            c.store("y_train", y_test)
         return Dataset(new_train, y_test, new_test)
 
 
@@ -363,7 +416,8 @@ class Regressor(BaseEstimator):
         The unique name of `Estimator` object.
     use_cache : bool, optional
         if `True` then validate/predict/stack/blend results will be cached."""
-    problem = 'regression'
+
+    problem = "regression"
 
 
 class Classifier(BaseEstimator):
@@ -379,9 +433,23 @@ class Classifier(BaseEstimator):
         The unique name of `Estimator` object.
     use_cache : bool, optional
         if `True` then validate/predict/stack/blend results will be cached."""
-    problem = 'classification'
 
-    def __init__(self, dataset, estimator=None, parameters=None, name=None, use_cache=True, probability=True):
-        super(Classifier, self).__init__(dataset=dataset, estimator=estimator, parameters=parameters, name=name,
-                                         use_cache=use_cache)
+    problem = "classification"
+
+    def __init__(
+        self,
+        dataset,
+        estimator=None,
+        parameters=None,
+        name=None,
+        use_cache=True,
+        probability=True,
+    ):
+        super(Classifier, self).__init__(
+            dataset=dataset,
+            estimator=estimator,
+            parameters=parameters,
+            name=name,
+            use_cache=use_cache,
+        )
         self.probability = probability

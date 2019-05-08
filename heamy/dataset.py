@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split, StratifiedKFold, KFold
 from .cache import Cache, numpy_buffer
 from .utils.main import idx, concat
 
-logger = logging.getLogger('heamy.dataset')
+logger = logging.getLogger("heamy.dataset")
 
 
 class Dataset(object):
@@ -48,7 +48,15 @@ class Dataset(object):
     >>>     return X_train, y_train, X_test, y_test
     """
 
-    def __init__(self, X_train=None, y_train=None, X_test=None, y_test=None, preprocessor=None, use_cache=True):
+    def __init__(
+        self,
+        X_train=None,
+        y_train=None,
+        X_test=None,
+        y_test=None,
+        preprocessor=None,
+        use_cache=True,
+    ):
         self._hash = None
         self.use_cache = use_cache
         self._preprocessor = preprocessor
@@ -58,7 +66,7 @@ class Dataset(object):
             self._check_input()
             self._setup_columns()
 
-        if hasattr(self.__class__, 'preprocess'):
+        if hasattr(self.__class__, "preprocess"):
             self._preprocessor = self.preprocess
 
     def _setup_columns(self):
@@ -72,16 +80,26 @@ class Dataset(object):
             raise ValueError("Missing 2 required arrays: X_train and y_train.")
 
         if self._X_train.shape[0] != self._y_train.shape[0]:
-            raise ValueError("Found arrays with inconsistent numbers of samples: X_train(%s), y_train(%s)" %
-                             (self._X_train.shape[0], self._y_train.shape[0]))
+            raise ValueError(
+                "Found arrays with inconsistent numbers of samples: X_train(%s), y_train(%s)"
+                % (self._X_train.shape[0], self._y_train.shape[0])
+            )
 
-        if (self._y_test is not None and self._X_test is not None) and (self._X_test.shape[0] != self._y_test.shape[0]):
-            raise ValueError("Found arrays with inconsistent numbers of samples: X_test(%s), y_test(%s)" %
-                             (self._X_test.shape[0], self._y_test.shape[0]))
+        if (self._y_test is not None and self._X_test is not None) and (
+            self._X_test.shape[0] != self._y_test.shape[0]
+        ):
+            raise ValueError(
+                "Found arrays with inconsistent numbers of samples: X_test(%s), y_test(%s)"
+                % (self._X_test.shape[0], self._y_test.shape[0])
+            )
 
-        if (self._X_test is not None) and (self._X_train.shape[1] != self._X_test.shape[1]):
-            raise ValueError("Found arrays with inconsistent numbers of features: X_train(%s), X_test(%s)" %
-                             (self._X_train.shape[1], self._X_test.shape[1]))
+        if (self._X_test is not None) and (
+            self._X_train.shape[1] != self._X_test.shape[1]
+        ):
+            raise ValueError(
+                "Found arrays with inconsistent numbers of features: X_train(%s), X_test(%s)"
+                % (self._X_train.shape[1], self._X_test.shape[1])
+            )
 
     def load(self):
         if self.loaded:
@@ -103,38 +121,40 @@ class Dataset(object):
 
     def _load_cache(self):
         if self.use_cache:
-            cache = Cache(self.hash, prefix='d')
+            cache = Cache(self.hash, prefix="d")
             if cache.available:
-                logger.info('Loading %s from cache.' % (self.__repr__()))
+                logger.info("Loading %s from cache." % (self.__repr__()))
 
-                self._X_train = cache.retrieve('X_train')
-                self._y_train = cache.retrieve('y_train')
+                self._X_train = cache.retrieve("X_train")
+                self._y_train = cache.retrieve("y_train")
 
-                self._X_test = cache.retrieve('X_test')
-                self._y_test = cache.retrieve('y_test')
+                self._X_test = cache.retrieve("X_test")
+                self._y_test = cache.retrieve("y_test")
                 return True
+
         return False
 
     def _cache(self):
         if callable(self._preprocessor):
-            cache = Cache(self.hash, prefix='d')
+            cache = Cache(self.hash, prefix="d")
 
-            cache.store('X_train', self._X_train)
-            cache.store('y_train', self._y_train)
+            cache.store("X_train", self._X_train)
+            cache.store("y_train", self._y_train)
 
             if self._X_test is not None:
-                cache.store('X_test', self._X_test)
+                cache.store("X_test", self._X_test)
 
             if self._y_test is not None:
-                cache.store('y_test', self._y_test)
+                cache.store("y_test", self._y_test)
             return True
+
         else:
             logger.warning("%s can't be cached." % self.__repr__())
             return False
 
     @property
     def name(self):
-        if hasattr(self.__class__, 'preprocess') or self._preprocessor is None:
+        if hasattr(self.__class__, "preprocess") or self._preprocessor is None:
             name = self.__class__.__name__
         else:
             name = self._preprocessor.__name__
@@ -142,7 +162,7 @@ class Dataset(object):
         return name
 
     def __repr__(self):
-        return '%s(%s)' % (self.name, self.hash)
+        return "%s(%s)" % (self.name, self.hash)
 
     def _setup_data(self, X_train=None, y_train=None, X_test=None, y_test=None):
 
@@ -162,7 +182,9 @@ class Dataset(object):
             data = np.array(data)
         return data
 
-    def split(self, test_size=0.1, stratify=False, inplace=False, seed=33, indices=None):
+    def split(
+        self, test_size=0.1, stratify=False, inplace=False, seed=33, indices=None
+    ):
         """Splits train set into two parts (train/test).
 
         Parameters
@@ -201,16 +223,24 @@ class Dataset(object):
             stratify = None
 
         if indices is None:
-            X_train, X_test, y_train, y_test = train_test_split(self.X_train, self._y_train,
-                                                                test_size=test_size,
-                                                                random_state=seed,
-                                                                stratify=stratify, )
+            X_train, X_test, y_train, y_test = train_test_split(
+                self.X_train,
+                self._y_train,
+                test_size=test_size,
+                random_state=seed,
+                stratify=stratify,
+            )
         else:
             X_train, y_train = idx(self.X_train, indices[0]), self.y_train[indices[0]]
             X_test, y_test = idx(self.X_train, indices[1]), self.y_train[indices[1]]
 
         if inplace:
-            self._X_train, self._X_test, self._y_train, self._y_test = X_train, X_test, y_train, y_test
+            self._X_train, self._X_test, self._y_train, self._y_test = (
+                X_train,
+                X_test,
+                y_train,
+                y_test,
+            )
 
         return X_train, y_train, X_test, y_test
 
@@ -262,7 +292,7 @@ class Dataset(object):
     def hash(self):
         """Return md5 hash for current dataset."""
         if self._hash is None:
-            m = hashlib.new('md5')
+            m = hashlib.new("md5")
             if self._preprocessor is None:
                 # generate hash from numpy array
                 m.update(numpy_buffer(self._X_train))
@@ -273,7 +303,7 @@ class Dataset(object):
                     m.update(numpy_buffer(self._y_test))
             elif callable(self._preprocessor):
                 # generate hash from user defined object (source code)
-                m.update(inspect.getsource(self._preprocessor).encode('utf-8'))
+                m.update(inspect.getsource(self._preprocessor).encode("utf-8"))
 
             self._hash = m.hexdigest()
 
@@ -294,7 +324,7 @@ class Dataset(object):
         `Dataset`
         """
         if not isinstance(ds, Dataset):
-            raise ValueError('Expected `Dataset`, got %s.' % ds)
+            raise ValueError("Expected `Dataset`, got %s." % ds)
 
         X_train = concat(ds.X_train, self.X_train, axis=axis)
         y_train = concat(ds.y_train, self.y_train, axis=axis)
@@ -335,6 +365,6 @@ class Dataset(object):
 
     def to_dense(self):
         """Convert sparse Dataset to dense matrix."""
-        if hasattr(self._X_train, 'todense'):
+        if hasattr(self._X_train, "todense"):
             self._X_train = self._X_train.todense()
             self._X_test = self._X_test.todense()
