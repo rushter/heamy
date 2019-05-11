@@ -50,7 +50,7 @@ class Cache(object):
 
 def numpy_buffer(ndarray):
     """Creates a buffer from c_contiguous numpy ndarray."""
-    # Credits to: https://github.com/joblib/joblib/blob/04b001861e1dd03a857b7b419c336de64e05714c/joblib/hashing.py
+    # Credits to: https://git.io/fjC5g
 
     if isinstance(ndarray, (pd.Series, pd.DataFrame)):
         ndarray = ndarray.values

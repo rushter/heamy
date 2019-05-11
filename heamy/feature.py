@@ -121,6 +121,7 @@ def woe(df, feature_name, target_name):
 
 def mean_target(df, feature_name, target_name, C=None):
     """Mean target.
+
     Original idea: Stanislav Semenov
 
     Parameters
@@ -150,6 +151,7 @@ def mean_target(df, feature_name, target_name, C=None):
 
 def xgb_to_features(model, X_train, X_test):
     """Converts xgboost model into categorical features.
+
     Reference:
     "Practical Lessons from Predicting Clicks on Ads at Facebook"
     https://research.fb.com/publications/practical-lessons-from-predicting-clicks-on-ads-at-facebook/
