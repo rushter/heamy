@@ -12,11 +12,11 @@ with open('README.rst') as readme_file:
     readme = readme_file.read()
 
 requirements = [
-    'scikit-learn>=0.21.0',
-    'pandas>=0.24.2',
-    'six>=1.12.0',
-    'scipy>=1.2.1',
-    'numpy>=1.16.3',
+    'scikit-learn>=0.20.0',
+    'pandas>=0.23',
+    'six>=1.11',
+    'scipy>=1.2',
+    'numpy>=1.16',
 ]
 
 test_requirements = [
