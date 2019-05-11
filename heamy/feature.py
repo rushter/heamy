@@ -1,4 +1,5 @@
 # coding:utf-8
+import logging
 
 import pandas as pd
 import numpy as np
@@ -41,11 +42,6 @@ def onehot_features(train, test, features, full=False, sparse=False, dummy_na=Tr
 
     train = pd.get_dummies(train, columns=features, dummy_na=dummy_na, sparse=sparse)
     test = pd.get_dummies(test, columns=features, dummy_na=dummy_na, sparse=sparse)
-
-    # d_cols = train.columns[(train == 0).all()]
-    # train.drop(d_cols, 1, inplace=True)
-    # test.drop(d_cols, 1, inplace=True)
-
     return train, test
 
 
@@ -145,7 +141,6 @@ def mean_target(df, feature_name, target_name, C=None):
         group_size = float(group.shape[0])
         if C is None:
             return (group.mean() * group_size + global_mean) / group_size
-
         else:
             return (group.mean() * group_size + global_mean * C) / (group_size + C)
 
@@ -175,13 +170,13 @@ class XGBParser(object):
     def load_dump(self, path):
 
         dump = open(path, "r").read()
-        search = re.finditer("\[f([0-9]*?)<(.*?)\]", dump, re.MULTILINE)
+        search = re.finditer(r"\[f([0-9]*?)<(.*?)\]", dump, re.MULTILINE)
         for group in search:
             group = group.groups()
             idx, val = int(group[0]), float(group[1])
             self.groups.add((idx, val))
 
-    # logging.info('Found %s splits.' % (len(self.groups)))
+        logging.debug("Found %s splits.", (len(self.groups)))
 
     def transform(self, X):
         output = []

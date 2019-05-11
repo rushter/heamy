@@ -147,7 +147,6 @@ class Dataset(object):
             if self._y_test is not None:
                 cache.store("y_test", self._y_test)
             return True
-
         else:
             logger.warning("%s can't be cached." % self.__repr__())
             return False

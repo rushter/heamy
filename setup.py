@@ -12,11 +12,11 @@ with open('README.rst') as readme_file:
     readme = readme_file.read()
 
 requirements = [
-    'scikit-learn>=0.17.0',
-    'pandas>=0.17.0',
-    'six>=1.10.0',
-    'scipy>=0.16.0',
-    'numpy>=1.7.0',
+    'scikit-learn>=0.21.0',
+    'pandas>=0.24.2',
+    'six>=1.12.0',
+    'scipy>=1.2.1',
+    'numpy>=1.16.3',
 ]
 
 test_requirements = [
@@ -44,12 +44,11 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         "Programming Language :: Python :: 2",
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
     test_suite='tests',
     tests_require=test_requirements,

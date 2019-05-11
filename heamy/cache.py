@@ -33,7 +33,7 @@ class Cache(object):
         cache_file = os.path.join(self._hash_dir, "%s.npy" % key)
 
         if os.path.exists(cache_file):
-            data = np.load(cache_file)
+            data = np.load(cache_file, allow_pickle=True)
             if os.path.exists(column_file):
                 with open(column_file, "r") as json_file:
                     columns = json.load(json_file)
@@ -66,7 +66,6 @@ def numpy_buffer(ndarray):
 
     if hasattr(np, "getbuffer"):
         return np.getbuffer(obj_c_contiguous)
-
     else:
         return memoryview(obj_c_contiguous)
 

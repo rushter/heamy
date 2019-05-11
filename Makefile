@@ -81,4 +81,4 @@ install: clean
 	python setup.py install
 
 format:
-    black heamy
+	black heamy

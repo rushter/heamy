@@ -3,7 +3,7 @@ import random
 
 import numpy as np
 import pytest
-from sklearn.cross_validation import train_test_split
+from sklearn.model_selection import train_test_split
 from sklearn.datasets import load_boston
 from sklearn.linear_model import LinearRegression, LogisticRegression
 
@@ -28,13 +28,13 @@ class RealDataset(Dataset):
         return {'X_train': X_train, 'y_train': y_train, 'X_test': X_test, 'y_test': y_test}
 
 
-class TestDataset(Dataset):
+class CustomDataset(Dataset):
     @staticmethod
     def preprocess():
         return X_train, y_train, X_test, y_test
 
 
-class TestEstimator(Classifier):
+class CustomEstimator(Classifier):
     @staticmethod
     def estimator(X_train, y_train, X_test, y_test=None):
         return np.zeros((2, X_test.shape[0]))
@@ -49,22 +49,22 @@ def random_param():
     return random.randint(1, 100)
 
 
-model_func = Regressor(estimator=func_estimator, dataset=TestDataset)
-model_cls = TestEstimator(dataset=TestDataset())
-model_param = Regressor(estimator=LinearRegression, parameters={'random_param': random_param}, dataset=TestDataset)
-model_param2 = Classifier(estimator=LogisticRegression, parameters={'colsample_bylevel': 0.9}, dataset=TestDataset)
+model_func = Regressor(estimator=func_estimator, dataset=CustomDataset)
+model_cls = CustomEstimator(dataset=CustomDataset())
+model_param = Regressor(estimator=LinearRegression, parameters={'random_param': random_param}, dataset=CustomDataset)
+model_param2 = Classifier(estimator=LogisticRegression, parameters={'colsample_bylevel': 0.9}, dataset=CustomDataset)
 
 
 def test_hashing():
     assert str(model_func) == 'func_estimator(54743c7a5484d1bf2a64ac1d7b68f8cc)'
-    assert str(model_cls) == 'TestEstimator(da29cb8766f96e6561a51e8e3c13f661)'
+    assert str(model_cls) == 'CustomEstimator(95738761045c1f666bbe10e6c7eefc6c)'
     assert str(model_param) == 'LinearRegression(2e789a766f6dc2457fb6a63452ad2859)'
     assert str(model_param2) == 'LogisticRegression(74efb248db47d168aed2fc37c0016e6f)'
 
     assert model_param2.hash == '74efb248db47d168aed2fc37c0016e6f'
 
-    e_hash = TestEstimator(dataset=TestDataset()).hash
-    assert e_hash == TestEstimator(dataset=TestDataset()).hash
+    e_hash = CustomEstimator(dataset=CustomDataset()).hash
+    assert e_hash == CustomEstimator(dataset=CustomDataset()).hash
 
 
 def test_custom_estimators():
@@ -76,10 +76,10 @@ def test_custom_estimators():
             return
 
     with pytest.raises(ValueError):
-        TestEstimator2(dataset=TestDataset)
+        TestEstimator2(dataset=CustomDataset)
 
     with pytest.raises(ValueError):
-        Regressor(estimator=test_estimator, dataset=TestDataset)
+        Regressor(estimator=test_estimator, dataset=CustomDataset)
 
 
 def test_validation():

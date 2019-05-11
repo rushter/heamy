@@ -1,4 +1,4 @@
-from sklearn.cross_validation import train_test_split
+from sklearn.model_selection import train_test_split
 from sklearn.datasets import load_boston
 
 from heamy.dataset import Dataset
@@ -12,10 +12,6 @@ from heamy.utils import flush_cache
 
 np.random.seed(1000)
 
-# X_train = np.random.rand(100, 100)
-# X_test = np.random.rand(100, 100)
-# y_train = np.random.rand(100, 1)
-# y_test = np.random.rand(100, 1)
 flush_cache()
 
 data = load_boston()
@@ -23,7 +19,7 @@ X, y = data['data'], data['target']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=111)
 
 
-class TestDataset(Dataset):
+class CustomDataset(Dataset):
     @staticmethod
     def preprocess():
         data = load_boston()
@@ -32,19 +28,19 @@ class TestDataset(Dataset):
         return X_train, y_train, X_test, y_test
 
 
-class TestDataset2(Dataset):
+class CustomDataset2(Dataset):
     @staticmethod
     def preprocess():
         return X_train, y_train
 
 
-class TestDataset3(Dataset):
+class CustomDataset3(Dataset):
     @staticmethod
     def preprocess():
         return pd.DataFrame(X_train), pd.DataFrame(y_train)
 
 
-class TestDataset4(Dataset):
+class CustomDataset4(Dataset):
     @staticmethod
     def preprocess():
         return {'X_train': X_train, 'y_train': y_train,
@@ -68,7 +64,7 @@ def test_initialization():
 
     Dataset(preprocessor=preprocess)
 
-    TestDataset()
+    CustomDataset()
 
 
 def test_properties():
@@ -85,20 +81,20 @@ def test_properties():
 
 
 def test_hashing():
-    assert Dataset(X_train, y_train, X_test, y_test).hash == '0cb7e710b7319bb71e7328e4b422b374'
-    assert Dataset(X_train, y_train, X_test).hash == 'c9b316f827981b3d0b53f8ab139234ea'
+    assert Dataset(X_train, y_train, X_test, y_test).hash == '13fceb92d1485772af58252810646711'
+    assert Dataset(X_train, y_train, X_test).hash == '116d39a012c2b54df573a8b8d0eae85c'
     assert Dataset(pd.DataFrame(X_train), pd.DataFrame(y_train),
-                   pd.DataFrame(X_test)).hash == 'c9b316f827981b3d0b53f8ab139234ea'
+                   pd.DataFrame(X_test)).hash == '116d39a012c2b54df573a8b8d0eae85c'
 
     assert Dataset(np.asfortranarray(X_train), np.asfortranarray(y_train),
-                   np.asfortranarray(X_test)).hash == '8087697aa8460a25314edc85cc915ec8'
+                   np.asfortranarray(X_test)).hash == 'e2ebd8834b5b3bfb6b9ff3e4697ceb24'
 
-    d_hash = TestDataset().hash
-    assert d_hash == TestDataset().hash
+    d_hash = CustomDataset().hash
+    assert d_hash == CustomDataset().hash
 
 
 def test_repr():
-    assert str(Dataset(X_train, y_train, X_test, y_test)) == 'Dataset(0cb7e710b7319bb71e7328e4b422b374)'
+    assert str(Dataset(X_train, y_train, X_test, y_test)) == 'Dataset(13fceb92d1485772af58252810646711)'
 
 
 def test_shapes():
@@ -119,10 +115,10 @@ def test_shapes():
 
 
 def test_preprocessing():
-    TestDataset()
-    TestDataset2()
+    CustomDataset()
+    CustomDataset2()
 
-    TestDataset4()
+    CustomDataset4()
 
 
 def test_split():
@@ -156,22 +152,22 @@ def test_cache():
     if os.path.exists(cache_dir):
         shutil.rmtree(cache_dir)
 
-    d = TestDataset()
+    d = CustomDataset()
     d._cache()
 
-    d = TestDataset(use_cache=True)
+    d = CustomDataset(use_cache=True)
     d.load()
     assert d.loaded
 
-    d = TestDataset(use_cache=False)
+    d = CustomDataset(use_cache=False)
     d.load()
     assert d.loaded
 
-    d = TestDataset3(use_cache=True)
+    d = CustomDataset3(use_cache=True)
     d.load()
     d._cache()
 
-    d = TestDataset3(use_cache=True)
+    d = CustomDataset3(use_cache=True)
     d.load()
     assert isinstance(d.X_train, (pd.DataFrame, pd.Series))
 

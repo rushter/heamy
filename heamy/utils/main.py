@@ -8,11 +8,6 @@ import numpy as np
 import pandas as pd
 from six.moves import range
 
-try:
-    import tqdm as tqdm
-except:
-    pass
-
 
 def report_score(scores, metric=None):
     if metric is not None:
@@ -30,7 +25,6 @@ def tsplit(df, shape):
     """Split array into two parts."""
     if isinstance(df, (pd.DataFrame, pd.Series)):
         return df.iloc[0:shape], df.iloc[shape:]
-
     else:
         return df[0:shape], df[shape:]
 
@@ -43,7 +37,6 @@ def concat(x, y, axis=0):
     else:
         if axis == 0:
             return np.concatenate([x, y])
-
         else:
             return np.column_stack([x, y])
 
@@ -53,7 +46,6 @@ def reshape_1d(df):
     shape = df.shape
     if len(shape) == 1:
         return df.reshape(shape[0], 1)
-
     else:
         return df
 
@@ -62,7 +54,6 @@ def idx(df, index):
     """Universal indexing for numpy and pandas objects."""
     if isinstance(df, (pd.DataFrame, pd.Series)):
         return df.iloc[index]
-
     else:
         return df[index, :]
 
@@ -74,7 +65,6 @@ def generate_columns(df, name):
         col_count = df.shape[1]
     if col_count == 1:
         return [name]
-
     else:
         return ["%s_%s" % (name, i) for i in range(col_count)]
 
@@ -112,6 +102,8 @@ def xgb_progressbar(rounds=1000):
 
     >>> model = xgb.train(params, X_train, 1000, callbacks=[xgb_progress(1000), ])
     """
+    import tqdm as tqdm
+
     pbar = tqdm(total=rounds)
 
     def callback(_,):
