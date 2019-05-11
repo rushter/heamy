@@ -93,9 +93,7 @@ class Dataset(object):
                 % (self._X_test.shape[0], self._y_test.shape[0])
             )
 
-        if (self._X_test is not None) and (
-            self._X_train.shape[1] != self._X_test.shape[1]
-        ):
+        if (self._X_test is not None) and (self._X_train.shape[1] != self._X_test.shape[1]):
             raise ValueError(
                 "Found arrays with inconsistent numbers of features: X_train(%s), X_test(%s)"
                 % (self._X_train.shape[1], self._X_test.shape[1])
@@ -181,9 +179,7 @@ class Dataset(object):
             data = np.array(data)
         return data
 
-    def split(
-        self, test_size=0.1, stratify=False, inplace=False, seed=33, indices=None
-    ):
+    def split(self, test_size=0.1, stratify=False, inplace=False, seed=33, indices=None):
         """Splits train set into two parts (train/test).
 
         Parameters

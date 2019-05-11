@@ -101,15 +101,7 @@ class ModelsPipeline(object):
         """
         return self.apply(lambda x: np.min(x, axis=0))
 
-    def stack(
-        self,
-        k=5,
-        stratify=False,
-        shuffle=True,
-        seed=100,
-        full_test=True,
-        add_diff=False,
-    ):
+    def stack(self, k=5, stratify=False, shuffle=True, seed=100, full_test=True, add_diff=False):
         """Stacks sequence of models.
 
         Parameters
@@ -163,9 +155,7 @@ class ModelsPipeline(object):
 
         return ds
 
-    def blend(
-        self, proportion=0.2, stratify=False, seed=100, indices=None, add_diff=False
-    ):
+    def blend(self, proportion=0.2, stratify=False, seed=100, indices=None, add_diff=False):
         """Blends sequence of models.
 
         Parameters
@@ -280,14 +270,7 @@ class PipeApply(object):
         return self.function(results)
 
     def validate(
-        self,
-        scorer=None,
-        k=1,
-        test_size=0.1,
-        stratify=False,
-        shuffle=True,
-        seed=100,
-        indices=None,
+        self, scorer=None, k=1, test_size=0.1, stratify=False, shuffle=True, seed=100, indices=None
     ):
         params = dict(
             k=k,

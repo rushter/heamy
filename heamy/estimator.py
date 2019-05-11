@@ -21,9 +21,7 @@ logger = logging.getLogger("heamy.estimator")
 class BaseEstimator(object):
     problem = None
 
-    def __init__(
-        self, dataset, estimator=None, parameters=None, name=None, use_cache=True
-    ):
+    def __init__(self, dataset, estimator=None, parameters=None, name=None, use_cache=True):
         """Base class for estimators.
         This class should not be used directly."""
         if estimator is not None:
@@ -64,8 +62,7 @@ class BaseEstimator(object):
                 args.remove("self")
             if not REQUIRED_ARGS.issubset(args):
                 raise ValueError(
-                    "Missing required arguments. Please specify %s"
-                    % ",".join(REQUIRED_ARGS)
+                    "Missing required arguments. Please specify %s" % ",".join(REQUIRED_ARGS)
                 )
 
     @property
@@ -86,9 +83,9 @@ class BaseEstimator(object):
             m = hashlib.new("md5")
             # generate hash from model's parameters
             for key in sorted(self.parameters.keys()):
-                h_string = (
-                    "%s-%s" % (key, self._convert_parameter(self.parameters[key]))
-                ).encode("utf-8")
+                h_string = ("%s-%s" % (key, self._convert_parameter(self.parameters[key]))).encode(
+                    "utf-8"
+                )
                 m.update(h_string)
             m.update(self.estimator_name.encode("utf-8"))
             m.update(self.dataset.hash.encode("utf-8"))
@@ -126,11 +123,7 @@ class BaseEstimator(object):
         else:
             # function-based definition
             result = self._estimator(
-                X_train=X_train,
-                y_train=y_train,
-                X_test=X_test,
-                y_test=y_test,
-                **self.parameters
+                X_train=X_train, y_train=y_train, X_test=X_test, y_test=y_test, **self.parameters
             )
 
         return result
@@ -142,14 +135,11 @@ class BaseEstimator(object):
                 logger.info("Loading %s's prediction from cache." % self._name)
                 prediction = c.retrieve("prediction")
                 return prediction
-
             elif not self.dataset.loaded:
                 self.dataset.load()
 
         prediction = self._predict(
-            X_train=self.dataset.X_train,
-            y_train=self.dataset.y_train,
-            X_test=self.dataset.X_test,
+            X_train=self.dataset.X_train, y_train=self.dataset.y_train, X_test=self.dataset.X_test
         )
         if self.use_cache:
             c.store("prediction", prediction)
@@ -166,14 +156,7 @@ class BaseEstimator(object):
         return m.hexdigest()
 
     def validate(
-        self,
-        scorer=None,
-        k=1,
-        test_size=0.1,
-        stratify=False,
-        shuffle=True,
-        seed=100,
-        indices=None,
+        self, scorer=None, k=1, test_size=0.1, stratify=False, shuffle=True, seed=100, indices=None
     ):
         """Evaluate score by cross-validation.
 
@@ -306,7 +289,6 @@ class BaseEstimator(object):
                 test = c.retrieve("test")
                 y_train = c.retrieve("y_train")
                 return Dataset(X_train=train, y_train=y_train, X_test=test)
-
             elif not self.dataset.loaded:
                 self.dataset.load()
 
@@ -331,9 +313,7 @@ class BaseEstimator(object):
 
         if full_test:
             logger.info("Calculating %s's test data" % self._name)
-            test = self._predict(
-                self.dataset.X_train, self.dataset.y_train, self.dataset.X_test
-            )
+            test = self._predict(self.dataset.X_train, self.dataset.y_train, self.dataset.X_test)
         else:
             test = np.mean(test, axis=0)
 
@@ -437,13 +417,7 @@ class Classifier(BaseEstimator):
     problem = "classification"
 
     def __init__(
-        self,
-        dataset,
-        estimator=None,
-        parameters=None,
-        name=None,
-        use_cache=True,
-        probability=True,
+        self, dataset, estimator=None, parameters=None, name=None, use_cache=True, probability=True
     ):
         super(Classifier, self).__init__(
             dataset=dataset,

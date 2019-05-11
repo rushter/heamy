@@ -30,11 +30,7 @@ class Optimizer(object):
         cons = {"type": "eq", "fun": lambda w: 1 - sum(w)}
         bounds = [(0, 1)] * len(self.predictions)
         res = minimize(
-            self.loss_func,
-            starting_values,
-            method=method,
-            bounds=bounds,
-            constraints=cons,
+            self.loss_func, starting_values, method=method, bounds=bounds, constraints=cons
         )
         print("Best Score (%s): %s" % (self.scorer.__name__, res["fun"]))
         print("Best Weights: %s" % res["x"])
