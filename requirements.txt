@@ -10,7 +10,7 @@ flake8==3.7.7
 -e git+git@github.com:rushter/heamy.git@10d1112d4c654eccb399ddbdd19281ab49df85b8#egg=heamy
 idna==2.8
 imagesize==1.1.0
-Jinja2==2.10.1
+Jinja2==2.11.3
 joblib==0.13.2
 MarkupSafe==1.1.1
 mccabe==0.6.1
