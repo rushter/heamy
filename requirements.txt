@@ -15,7 +15,7 @@ joblib==0.13.2
 MarkupSafe==1.1.1
 mccabe==0.6.1
 more-itertools==7.0.0
-numpy==1.16.3
+numpy==1.22.0
 numpydoc==0.9.1
 packaging==19.0
 pandas==0.24.2
